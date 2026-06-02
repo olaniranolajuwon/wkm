@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WOTKNOT | Monolith Noir Architectural Editorial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#ffffff",
+                        "on-primary": "#000000",
+                        "background": "#141313",
+                        "surface": "#141313",
+                        "surface-container": "#0e0e0e",
+                        "outline": "#8e9192",
+                        "on-surface-variant": "#c4c7c8",
+                        "secondary": "#c8c6c5",
+                        "error": "#ffb4ab"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0rem",
+                        "lg": "0rem",
+                        "xl": "0rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "unit": "8px",
+                        "container-max": "1440px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "nav-link": ["Archivo Narrow"],
+                        "headline-md": ["Archivo Narrow"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Archivo Narrow"],
+                        "display-hero": ["Archivo Narrow"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "nav-link": ["16px", {"lineHeight": "20px", "letterSpacing": "0.15em", "fontWeight": "500"}],
+                        "headline-md": ["32px", {"lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "22px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "headline-lg": ["64px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-hero": ["120px", {"lineHeight": "100px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0em", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #141313;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .border-thin {
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+        .progress-thread {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+        .progress-bar {
+            width: 100%;
+            background: #ffffff;
+            height: 0%;
+            transition: height 0.1s ease-out;
+        }
+        .collage-img {
+            transition: transform 0.1s ease-out, opacity 0.8s ease-out;
+            will-change: transform, opacity;
+        }
+        #floating-menu {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .hero-scatter-item {
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+            display: inline-block;
+        }
+        #overlay-menu {
+            transition: opacity 0.4s ease, visibility 0.4s;
+            opacity: 0;
+            visibility: hidden;
+        }
+        #overlay-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="font-body-lg" style="scroll-behavior: smooth;">
+<!-- FULL SCREEN OVERLAY MENU -->
+<div class="fixed inset-0 bg-white z-[200] text-black px-8 md:px-margin-desktop py-12 flex flex-col overflow-y-auto" id="overlay-menu">
+<div class="flex justify-end mb-12">
+<button class="hover:opacity-50 transition-opacity" id="close-menu">
+<span class="material-symbols-outlined text-4xl">close</span>
+</button>
+</div>
+<div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<!-- Links and Search -->
+<div class="flex flex-col gap-12">
+<nav class="flex flex-col gap-4">
+<a class="text-[48px] md:text-[80px] font-display-hero uppercase leading-none hover:opacity-50 transition-opacity" href="#">MUSIC</a>
+<a class="text-[48px] md:text-[80px] font-display-hero uppercase leading-none hover:opacity-50 transition-opacity" href="#">ART</a>
+<a class="text-[48px] md:text-[80px] font-display-hero uppercase leading-none hover:opacity-50 transition-opacity" href="#">FASHION</a>
+<a class="text-[48px] md:text-[80px] font-display-hero uppercase leading-none hover:opacity-50 transition-opacity" href="#">LIFESTYLE</a>
+</nav>
+<div class="max-w-md">
+<div class="relative border-b border-black pb-2 flex items-center">
+<input class="w-full bg-transparent border-none focus:ring-0 p-0 text-label-caps font-label-caps placeholder-black" placeholder="SEARCH" type="text"/>
+<span class="material-symbols-outlined">arrow_forward</span>
+</div>
+<!-- SOCIAL ICONS matching IMAGE_7 aesthetic -->
+<div class="flex gap-6 mt-8">
+<a class="hover:opacity-50 transition-opacity" href="#">
+<img alt="Instagram" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4ZCHwhZ2wdvYcwvE9e0WKtxTcTTOzbY_yXELUFakrAGz0TxCHuYklXmNWdIlpYoy62U_dlAV6_0Tz-uO_mGlE5lxZRvIiL_ijIRp35vE6eJkkHRlWV4cyKcMiw_u1qmPiyZvRVmxT9oJ0FLI4rxE3vxma7iG6P9Fr06tspuOpKpurNN6ozvu6MLKkUgyMwo_mA6ZuRM93Zn67Z0yTcD0o2EIJeDQmkO3fFi8reUwLIywSbAnCjN5rqK-GF3H2Gkx_hUIYVrsGfDs"/>
+</a>
+<a class="hover:opacity-50 transition-opacity" href="#">
+<img alt="X" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyY0HAnKe3ixDokgU7Dx7quryvGP7RZFC8ervfHNS53_-gaWDjtYy6dz1y2VxzD8vytlNTVTDXQ3GBf2sqKi7WSPtNwHDCwblGr7f9IC0y3CIwaY0iWNRxnQFyaFHpE90d5WNeaBXee5tCrUBWe3FoWMFtCOhtSNMFo-eaK96h1EsfzCtRMObU1Bbr2Ly95qbxJKNZ5VTTmFC3bnJlgTrPjiVMw3y_8QKtHWUb9_1vsFSB6oVwJnDWB_bGhw6DM4l2733OPJnJmh8"/>
+</a>
+<a class="hover:opacity-50 transition-opacity" href="#">
+<img alt="YouTube" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM3LKJnayQ7C1n125dPGNVD4IszckwgnOGswMKmPi5HOrqWEOr-KhVPEf31RfxEPywyyWH8rzuEmu9E4Mee-h44eKE49jVPHTnSF3p4NwWh_285cjzzi-uv_ZGwSNehWnym2H6AUf3BCeTb8TmeffIzqz2awXsCWdG45EEytxoBkDsmHi55M9tgg85NxoKMdZahTTTSaH47UrbOfUaaLwJFRyH3kGybWcAphoXAUNE9LPOFyrHm2JA_5ncmB8XYpu0Kd9s3cfUjU8"/>
+</a>
+<a class="hover:opacity-50 transition-opacity" href="#">
+<img alt="Spotify" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOMzao9hOekAf9vREojc3uyu5UgcptYsOcZcRSjBnWUIGx3zFmdYOSiQhov4VVZLTVEpuTPDTsAnyZCXakMizuH0yIttx_wKHmD2NUSiLXUWjwEFzaIlEhRZwNUYR_3csop8b96vGZtqLJa_sTZ9HMQDtRyju8BECO5MggnLYv28MZ6vwPDPCT65risWOdJwlm_SrwQTEGGXbRyu2uLW-j1U1Ihf8_sUFRYJ_WMkjklb0DuVw2plMpD5umGowI_9Pf-72KRmPEtWY"/>
+</a>
+</div>
+</div>
+</div>
+<!-- Newsletter -->
+<div class="flex flex-col gap-6 md:pl-12 border-l-0 md:border-l border-black/10">
+<h3 class="text-nav-link font-nav-link uppercase font-bold tracking-widest">SUBSCRIBE TO OUR NEWSLETTER</h3>
+<p class="text-body-sm text-black/60 max-w-sm">Be in the know and join our inner circle of style mavens, innovators, art lovers and tech-aficionados.</p>
+<div class="relative border-b border-black pb-2 mt-4 max-w-sm">
+<input class="w-full bg-transparent border-none focus:ring-0 p-0 text-label-caps font-label-caps placeholder-black/40" placeholder="Your Email *" type="email"/>
+<button class="absolute right-0 bottom-2">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- FLOATING HAMBURGER MENU -->
+<div class="fixed top-8 right-8 z-[110] opacity-0 pointer-events-none" id="floating-menu">
+<button class="w-12 h-12 bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white hover:text-black transition-all" id="open-menu">
+<span class="material-symbols-outlined text-3xl">menu</span>
+</button>
+</div>
+<!-- PROGRESS INDICATOR -->
+<div class="progress-thread hidden lg:block">
+<div class="progress-bar" id="reading-progress"></div>
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-label-caps uppercase text-white/40 rotate-90 origin-center whitespace-nowrap">Thematic Thread</div>
+</div>
+<!-- HERO SECTION -->
+<section class="relative h-screen w-full flex items-center justify-center bg-black overflow-hidden" id="hero">
+<div class="relative z-10 flex flex-col items-center gap-12 md:gap-24 w-full px-8 transition-all duration-700" id="hero-content">
+<nav class="flex flex-row gap-6 md:gap-12" id="hero-nav">
+<a class="hero-scatter-item text-nav-link font-nav-link uppercase text-primary hover:opacity-50 transition-opacity" data-scatter-rot="-30" data-scatter-x="-200" data-scatter-y="-100" href="#">Music</a>
+<a class="hero-scatter-item text-nav-link font-nav-link uppercase text-primary hover:opacity-50 transition-opacity" data-scatter-rot="-15" data-scatter-x="-50" data-scatter-y="-150" href="#">ART</a>
+<a class="hero-scatter-item text-nav-link font-nav-link uppercase text-primary hover:opacity-50 transition-opacity" data-scatter-rot="15" data-scatter-x="50" data-scatter-y="-150" href="#">FAshion</a>
+<a class="hero-scatter-item text-nav-link font-nav-link uppercase text-primary hover:opacity-50 transition-opacity" data-scatter-rot="30" data-scatter-x="200" data-scatter-y="-100" href="#">Lifestyle</a>
+</nav>
+<div class="w-full max-w-[900px] text-center text-white" id="hero-logo-container">
+<img alt="WOTKNOT wordmark" class="w-full h-auto object-contain transition-transform duration-700 origin-center" id="hero-logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPEa5vMtSV7CSAA6kmxmMJawKloLjfhu9pAxA6LHqU-VVDBumocAowcjLGJsDsezKR-gLd5g4_ZzDf6B9bcvv7RJVoDpjJuwyytceHzpOp8JcSA5ygEOLAAv8mRAjXOmM73Aj77bd-UXaPhiXTYnc0leL7-mkiJ0GGAF58XAHd2E6ZhcMVzAeSK48AgA3N9jimcdThP150yWjyk9gv8PW40Tlf6q11ZLXlh0zOagOp_f73I6G7VP_VxhZrdgc-Opa5D8GA9fHcf1c"/>
+</div>
+<div class="flex flex-row gap-8 md:gap-12 items-center" id="hero-socials">
+<a class="hero-scatter-item text-primary hover:opacity-50 transition-opacity" data-scatter-rot="-20" data-scatter-x="-150" data-scatter-y="100" href="#">
+<img alt="Instagram" class="w-5 h-5 object-contain invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4ZCHwhZ2wdvYcwvE9e0WKtxTcTTOzbY_yXELUFakrAGz0TxCHuYklXmNWdIlpYoy62U_dlAV6_0Tz-uO_mGlE5lxZRvIiL_ijIRp35vE6eJkkHRlWV4cyKcMiw_u1qmPiyZvRVmxT9oJ0FLI4rxE3vxma7iG6P9Fr06tspuOpKpurNN6ozvu6MLKkUgyMwo_mA6ZuRM93Zn67Z0yTcD0o2EIJeDQmkO3fFi8reUwLIywSbAnCjN5rqK-GF3H2Gkx_hUIYVrsGfDs"/>
+</a>
+<a class="hero-scatter-item text-primary hover:opacity-50 transition-opacity" data-scatter-rot="-10" data-scatter-x="-50" data-scatter-y="120" href="#">
+<img alt="X" class="w-5 h-5 object-contain invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyY0HAnKe3ixDokgU7Dx7quryvGP7RZFC8ervfHNS53_-gaWDjtYy6dz1y2VxzD8vytlNTVTDXQ3GBf2sqKi7WSPtNwHDCwblGr7f9IC0y3CIwaY0iWNRxnQFyaFHpE90d5WNeaBXee5tCrUBWe3FoWMFtCOhtSNMFo-eaK96h1EsfzCtRMObU1Bbr2Ly95qbxJKNZ5VTTmFC3bnJlgTrPjiVMw3y_8QKtHWUb9_1vsFSB6oVwJnDWB_bGhw6DM4l2733OPJnJmh8"/>
+</a>
+<a class="hero-scatter-item text-primary hover:opacity-50 transition-opacity" data-scatter-rot="10" data-scatter-x="50" data-scatter-y="120" href="#">
+<img alt="YouTube" class="w-5 h-5 object-contain invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM3LKJnayQ7C1n125dPGNVD4IszckwgnOGswMKmPi5HOrqWEOr-KhVPEf31RfxEPywyyWH8rzuEmu9E4Mee-h44eKE49jVPHTnSF3p4NwWh_285cjzzi-uv_ZGwSNehWnym2H6AUf3BCeTb8TmeffIzqz2awXsCWdG45EEytxoBkDsmHi55M9tgg85NxoKMdZahTTTSaH47UrbOfUaaLwJFRyH3kGybWcAphoXAUNE9LPOFyrHm2JA_5ncmB8XYpu0Kd9s3cfUjU8"/>
+</a>
+<a class="hero-scatter-item text-primary hover:opacity-50 transition-opacity" data-scatter-rot="20" data-scatter-x="150" data-scatter-y="100" href="#">
+<img alt="Spotify" class="w-5 h-5 object-contain invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOMzao9hOekAf9vREojc3uyu5UgcptYsOcZcRSjBnWUIGx3zFmdYOSiQhov4VVZLTVEpuTPDTsAnyZCXakMizuH0yIttx_wKHmD2NUSiLXUWjwEFzaIlEhRZwNUYR_3csop8b96vGZtqLJa_sTZ9HMQDtRyju8BECO5MggnLYv28MZ6vwPDPCT65risWOdJwlm_SrwQTEGGXbRyu2uLW-j1U1Ihf8_sUFRYJ_WMkjklb0DuVw2plMpD5umGowI_9Pf-72KRmPEtWY"/>
+</a>
+</div>
+</div>
+<div class="absolute bottom-12 flex flex-col items-center gap-4 transition-opacity duration-500" id="hero-scroll-indicator">
+<div class="w-[1px] h-12 bg-white opacity-20"></div>
+</div>
+</section>
+<main class="relative bg-[#141313] w-full">
+<!-- ABOUT SECTION WITH SCATTER COLLAGE -->
+<section class="relative min-h-[140vh] w-full flex items-center justify-center overflow-hidden py-32 md:py-64" id="about">
+<!-- Background Collage - Varied positions and rotations -->
+<div class="absolute inset-0 pointer-events-none" id="about-collage">
+<img alt="collage-1" class="collage-img absolute w-[20%] md:w-[15%] top-[5%] left-[5%] grayscale" data-rot="-25" data-x="-350" data-y="-350" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<img alt="collage-2" class="collage-img absolute w-[25%] md:w-[18%] top-[10%] right-[5%] grayscale" data-rot="18" data-x="400" data-y="-250" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+<img alt="collage-3" class="collage-img absolute w-[22%] md:w-[14%] bottom-[15%] left-[8%] grayscale" data-rot="-12" data-x="-450" data-y="450" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<img alt="collage-4" class="collage-img absolute w-[28%] md:w-[20%] top-[40%] right-[-2%] grayscale" data-rot="10" data-x="500" data-y="0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+<img alt="collage-5" class="collage-img absolute w-[18%] md:w-[12%] bottom-[5%] right-[12%] grayscale" data-rot="22" data-x="350" data-y="400" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<img alt="collage-6" class="collage-img absolute w-[22%] md:w-[16%] top-[25%] left-[15%] grayscale" data-rot="-8" data-x="-300" data-y="-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+<img alt="collage-7" class="collage-img absolute w-[15%] md:w-[10%] top-[60%] left-[2%] grayscale" data-rot="15" data-x="-400" data-y="200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<img alt="collage-8" class="collage-img absolute w-[20%] md:w-[14%] bottom-[30%] right-[18%] grayscale" data-rot="-20" data-x="300" data-y="150" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+<img alt="collage-9" class="collage-img absolute w-[12%] md:w-[8%] top-[15%] left-[40%] grayscale" data-rot="5" data-x="0" data-y="-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<img alt="collage-10" class="collage-img absolute w-[25%] md:w-[18%] bottom-[10%] right-[30%] grayscale" data-rot="5" data-x="250" data-y="350" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+</div>
+<div class="relative z-20 container-max mx-auto px-6 md:px-margin-desktop text-center">
+<div class="max-w-4xl mx-auto backdrop-blur-[4px] bg-black/40 p-12 border border-white/5">
+<span class="text-label-caps font-label-caps text-outline mb-6 block tracking-[0.3em]">ABOUT US</span>
+<h2 class="text-[60px] md:text-[110px] font-display-hero leading-[0.85] uppercase tracking-tighter mb-12">WE OWN THE <br/> KNOWLEDGE</h2>
+<div class="w-32 h-1 bg-primary mx-auto mb-12"></div>
+<p class="text-body-lg text-white/90 max-w-2xl mx-auto leading-relaxed mb-12">
+                    WOTKNOT is a Creative Collective that was established with genuine love for Music, Fashion, &amp; Art. Our mission is to connect people who loves the culture, creating meaningful ideas and having to impact it to the culture. We are group of people that believes “WE OWN THE KNOWLEDGE AND NOT OTHERWISE” every creative deserves a voice through whatever creative nature it is.
+                </p>
+<a class="text-nav-link font-nav-link uppercase border-b border-white w-fit pb-1 hover:opacity-50 transition-opacity mx-auto block" href="#">Read MOre</a>
+</div>
+</div>
+</section>
+<!-- WATCH THIS (Fully populated matching IMAGE_28) -->
+<section class="py-32 px-6 md:px-margin-desktop bg-[#141313]" id="watch">
+<div class="mb-16 flex flex-col items-center">
+<h2 class="text-headline-lg font-headline-lg uppercase text-center mb-2">Watch This</h2>
+<p class="text-body-sm text-outline uppercase tracking-widest">Celebrities on beauty.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-container-max mx-auto">
+<!-- Large Main Video -->
+<div class="lg:col-span-8 group cursor-pointer">
+<div class="relative aspect-video overflow-hidden border border-white/10 mb-6 bg-surface-container">
+<img alt="Featured Video" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AP1WRLunBf0VSgpboQEDOCZbamNyJUETau0PWDcSK07H4lY8dkRNBbSqMQvs9zyZ7HAlE23lPUNHGSymjDceFOHonSM1PAsFkmefrxFi9ERmH7sM8fwp6e1a98vTIp1gUELqOfc7Vj7dRlyModZnkAj1Ow8xq9JsWptEw5Jop-1ib48NNFH-sXqkZcs-5chxUBhacTc7E5HjTcfmbSbjePr8QG68FS7_2dZO8o6a64-W8YYfcBA0yVK6KoE2OPM"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
+<!-- Time Overlay like IMAGE_28 -->
+<div class="absolute top-8 left-8 text-white text-6xl font-bold font-display-hero opacity-80">00:10</div>
+<div class="absolute bottom-8 left-8 flex items-center gap-4">
+<div class="w-12 h-12 bg-white flex items-center justify-center rounded-full text-black">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+<div class="text-white">
+<span class="text-[10px] font-label-caps block mb-1">WATCH</span>
+<h4 class="text-nav-link font-bold uppercase">Olivia Dean's 10-Minute Routine for Healthy Hair &amp; Dewy Skin</h4>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Video List -->
+<div class="lg:col-span-4 flex flex-col gap-8">
+<div class="group cursor-pointer flex flex-col gap-4 border-b border-white/10 pb-8">
+<div class="relative aspect-video overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLskh3O8ZHPwT6KUqCOZqVmuIBCjve4yMtB8JFAHPQvIdie5wKL9Sruxq82oXcY0Rvf0MCRlDqgVh1aRICgUBPJJm66zUSOEvP4H3LfLcpzqHSUVxgjgZfRX7sIDj0RmLkowjL1heLAFUH8KT8xozHapOnqTsgci-A58jZPJ7JxbH4wmphAUVUCCZlL9LrPPysOh9QNjb_28pC-KTwskg6lFz8a_BNTNoMDv4E0JLk5zbXhSsUC7ewEvoQ"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-black">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<div>
+<h5 class="text-body-sm font-bold uppercase leading-tight group-hover:text-primary/70 transition-colors">Mandy Moore Breaks Down Her Iconic Looks From Princess Diaries, A Walk to Remember &amp; More</h5>
+</div>
+</div>
+<div class="group cursor-pointer flex flex-col gap-4 border-b border-white/10 pb-8">
+<div class="relative aspect-video overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLuVqlqjW5vAHS15jgmY3v3sfKwsNcDAxQgW7VDfCTkn_Kg6EMrE81K7CWSy7uBqVF1By5b3mu97C2pyeC1ZJjD-y1PMKGvvLe1D2nCpz3zG_hW3oD8gm1Q9H-DmS41Y2MwjZHQjWK1eLMvWijk73kzffutnXqtW-gcJ1AUzDDOBjeFtdiWbHHvS0WjOWfpBNXopc270bU21sH_uTiRiIE8ZInzbBIfuJLWlExsrDC7UbKDCZYuVIbEF8Ec"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-black">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<div>
+<h5 class="text-body-sm font-bold uppercase leading-tight group-hover:text-primary/70 transition-colors">Cardi B Reacts to TikTok Trends</h5>
+</div>
+</div>
+</div>
+</div>
+<!-- Extended grid for more thumbnails as requested -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 max-w-container-max mx-auto">
+<div class="group cursor-pointer">
+<div class="aspect-video bg-surface-container mb-3 overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/AP1WRLtBJ9mmiOelAJkbZEo-x34gYkZO-kDOEKn8CHRCYvxzMdSP66bBCzWy2_j8e-JwZf01tGmSb-PVj5EWyuS2W9VL_yr_m7J9vay-7dlTWhwFYX121XRd7pnvabqtsuxQxhzeAUO0frvBzNh_b3spx1wdb0A-yVWZ3SyQRMUsthB9CWH56I1Rb7ZM5jYZw4RIT5gZ_vSjW6-Emu4xSJ3YF4_JtJZ-JLgvSdYL8OHfAQ_cQOQpruisE9K3RzI"/>
+</div>
+<h6 class="text-[12px] font-label-caps uppercase">Vogue Archives Vol 2</h6>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-video bg-surface-container mb-3 overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/AP1WRLsg219a1A0UItaqQEOLRrTUB-Ko6J5mrC6b6m9WfIsnWzJvDsAJ0Bn4qZmP3SVkHrlzAkGOcrDOto-fl1TTu6SVrKlaTYlg931Bhkl6m9aleBFd94EnzQwiUIxdugyHuIVRMxTvJ21kRskUVy8XIcMeaskf77rI3gYthdD-eEBF32i9Ertdb-6L3pPhuALOrElbHXos5SnILKt7cNaS52-hVUztHGiz6woBhai3GP9lXaYadK1vyHtuZQ"/>
+</div>
+<h6 class="text-[12px] font-label-caps uppercase">Design Logic</h6>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-video bg-surface-container mb-3 overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/AP1WRLvFKnmbDNesRMy7v-g8oIGQBuUmmqqegkbJtGCcUYhTchmfA5eB2kAlun8OI5cJ-oNCwcOtpKoKe-G6Gy1xb7lwmu51jcoSS7TWG3Eab_w6jz8AV8ky4DnUkujmI8rDcIns2UeDWhptKpQGzgb-DPZZ5QXf3GrLPHdT4866s1pe8j4Gf-yi0ews82Gs4IwEKO8aAQ02-v4ngx9ikbrG_Dt3xgX-r7-I1q39d9Xh_1eaMwCHt2qKpbbcmV4"/>
+</div>
+<h6 class="text-[12px] font-label-caps uppercase">Color Theory</h6>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-video bg-surface-container mb-3 overflow-hidden">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/AP1WRLunBf0VSgpboQEDOCZbamNyJUETau0PWDcSK07H4lY8dkRNBbSqMQvs9zyZ7HAlE23lPUNHGSymjDceFOHonSM1PAsFkmefrxFi9ERmH7sM8fwp6e1a98vTIp1gUELqOfc7Vj7dRlyModZnkAj1Ow8xq9JsWptEw5Jop-1ib48NNFH-sXqkZcs-5chxUBhacTc7E5HjTcfmbSbjePr8QG68FS7_2dZO8o6a64-W8YYfcBA0yVK6KoE2OPM"/>
+</div>
+<h6 class="text-[12px] font-label-caps uppercase">Editorial Study</h6>
+</div>
+</div>
+</section>
+<!-- SHOP EDITORS' PICKS (Following IMAGE_20) -->
+<section class="py-32 bg-[#141313] border-y border-white/10" id="shop">
+<div class="px-6 md:px-margin-desktop mb-16 flex flex-col items-center">
+<h2 class="text-[48px] md:text-[64px] font-serif italic font-light tracking-tight text-center mb-12">Shop Our Editors' Picks</h2>
+<div class="w-full flex justify-between items-center max-w-container-max mx-auto">
+<div class="flex gap-2">
+<button class="p-4 hover:opacity-50"><span class="material-symbols-outlined">chevron_left</span></button>
+<span class="text-body-sm font-label-caps pt-1">1 / 2</span>
+<button class="p-4 hover:opacity-50"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+<div class="flex gap-4 overflow-x-auto no-scrollbar px-6 md:px-margin-desktop max-w-container-max mx-auto">
+<div class="min-w-[300px] md:min-w-[400px] group cursor-pointer relative">
+<div class="aspect-[3/4] bg-neutral-900 overflow-hidden relative mb-4">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<div class="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+<h3 class="text-headline-md text-white font-bold mb-1">Anthony Azekwoh</h3>
+<p class="text-label-caps text-white/60 uppercase">Digital Artist &amp; Author</p>
+</div>
+</div>
+</div>
+<div class="min-w-[300px] md:min-w-[400px] group cursor-pointer relative">
+<div class="aspect-[3/4] bg-neutral-900 overflow-hidden relative mb-4">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+<div class="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+<h3 class="text-headline-md text-white font-bold mb-1">Saki Editorial</h3>
+<p class="text-label-caps text-white/60 uppercase">Jewelry &amp; Heritage</p>
+</div>
+</div>
+</div>
+<div class="min-w-[300px] md:min-w-[400px] group cursor-pointer relative">
+<div class="aspect-[3/4] bg-neutral-900 overflow-hidden relative mb-4">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+<div class="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+<h3 class="text-headline-md text-white font-bold mb-1">Monolith Issue</h3>
+<p class="text-label-caps text-white/60 uppercase">Print Edition #01</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- THE LATEST / COVER STORIES (Based on IMAGE_23) -->
+<section class="py-32 px-6 md:px-margin-desktop bg-[#141313]" id="latest">
+<div class="flex flex-col items-start mb-16 max-w-container-max mx-auto">
+<h2 class="text-headline-lg font-headline-lg uppercase border-b-4 border-primary pb-2">Cover Features</h2>
+</div>
+<div class="flex flex-col gap-12 max-w-container-max mx-auto">
+<!-- Row 1: Image Left, Text Right -->
+<article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center border-b border-white/10 pb-12 group cursor-pointer">
+<div class="md:col-span-4 overflow-hidden">
+<img class="w-full aspect-[4/3] object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+</div>
+<div class="md:col-span-8 flex flex-col gap-4">
+<span class="text-error font-bold text-[10px] tracking-widest uppercase">ANTI-FEMINIST FANTASY</span>
+<h3 class="text-headline-md font-bold uppercase leading-tight group-hover:text-primary/70 transition-colors">Evie Magazine's Brittany Hugoboom Wants Women to Have It All (With Some Caveats for Vaccines, Hormones, and Abortions)</h3>
+<p class="text-body-sm text-on-surface-variant max-w-2xl">The 34-year-old editor in chief of the glossy guide for the women with paradoxical politics wants to blend the liberal health world with a conservative relationship world.</p>
+<div class="flex flex-col gap-1 text-[10px] font-label-caps text-outline">
+<span>BY MARISA MELTZER</span>
+<span>FEBRUARY 17, 2026</span>
+</div>
+</div>
+</article>
+<!-- Row 2: Image Left, Text Right -->
+<article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center border-b border-white/10 pb-12 group cursor-pointer">
+<div class="md:col-span-4 overflow-hidden">
+<img class="w-full aspect-[4/3] object-cover grayscale group-hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0u0gkDIbNaQO7oWdnYR-sMrUjJpR0nkfcxJAxKVn9U9tTxdAGcqWcKITrGsmfhXhpUEZIKjFNf0tmWWC1YB2HsCFWoT9Ww96ZlVQvwEd_UexAihw3utRojXlB8V1XnjFNNeVcxJUfXzomwe7revAI80ijuoSA1FznAPovmzIiVqcUMJnERh96KZRUH-fRRRiy5Qf60H3SW026WGRk1zcypzXr2KwNqGylwJ6n8DunQWQHdHSXVFxmCMQv8PC5n5OieQMrqVr22kY"/>
+</div>
+<div class="md:col-span-8 flex flex-col gap-4">
+<span class="text-error font-bold text-[10px] tracking-widest uppercase">BUSINESS</span>
+<h3 class="text-headline-md font-bold uppercase leading-tight group-hover:text-primary/70 transition-colors">Adam Moss Is Seeking Inspiration</h3>
+<p class="text-body-sm text-on-surface-variant max-w-2xl">Since leaving New York, the acclaimed editor has traded his red pen for a paintbrush, and in his new book, The Work of Art, he probes practitioners across mediums to get to the bottom of the creative process.</p>
+<div class="flex flex-col gap-1 text-[10px] font-label-caps text-outline">
+<span>BY CHARLOTTE KLEIN</span>
+<span>APRIL 15, 2024</span>
+</div>
+</div>
+</article>
+<!-- Row 3: Image Left (High Contrast Red Style matching IMAGE_23) -->
+<article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center border-b border-white/10 pb-12 group cursor-pointer">
+<div class="md:col-span-4 overflow-hidden bg-red-600 relative">
+<img class="w-full aspect-[4/3] object-cover mix-blend-multiply grayscale brightness-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANiIUKFIPtxnnK0QDBa0eYvJlBDNPfhWN8GlZ4oPN5mC1DffBIsMNwGRxcFJWtEuUpukvhMwvI-paEiGArrWAKx-U1svRq5F8bMRDVLnh_ttRPa4MDMKyTI01YcSqJFCZCbdms5wbAI2t-4goN_MzjFThjWOz1ZNmqOQ88Cpkaxy7-P5AJQSC-3_68hDQu0_VJwEpM0KZvW6uvLbJ8jUIG-B9qvlBA551vkmJCAbsPVGabu4IyWtLQGjVYlKdwGN7QSTwUs05ND04"/>
+</div>
+<div class="md:col-span-8 flex flex-col gap-4">
+<span class="text-error font-bold text-[10px] tracking-widest uppercase">HOT SEAT</span>
+<h3 class="text-headline-md font-bold uppercase leading-tight group-hover:text-primary/70 transition-colors">Zanny Minton Beddoes Wants The Economist to Be More “Present” in the Media Conversation</h3>
+<p class="text-body-sm text-on-surface-variant max-w-2xl">In a wide-ranging sit-down, the editor of the perilously emulated newsweekly talks about a globally critical election season, "shifting The Economist into the 21st century," and where to draw the line for de-platforming.</p>
+<div class="flex flex-col gap-1 text-[10px] font-label-caps text-outline">
+<span>BY JOE POMPEO</span>
+<span>JULY 13, 2023</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<footer class="bg-black py-24 px-6 md:px-margin-desktop border-t border-white/10 relative overflow-hidden">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
+<div class="w-full md:w-1/2">
+<h4 class="text-label-caps uppercase text-white mb-6">SUBSCRIBE TO OUR NEWSLETTER</h4>
+<div class="relative border-b border-white/20 pb-2 max-w-md">
+<input class="w-full bg-transparent border-none focus:ring-0 p-0 text-label-caps font-label-caps text-white placeholder-white/40" placeholder="Your Email *" type="email"/>
+<button class="absolute right-0 bottom-2 text-white">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="text-left md:text-right">
+<p class="text-label-caps text-white/40 uppercase tracking-widest">© 2024 WOTKNOT MAGAZINE. ALL RIGHTS RESERVED.</p>
+</div>
+</div>
+</footer>
+<script>
+    const heroLogo = document.getElementById('hero-logo');
+    const heroIndicator = document.getElementById('hero-scroll-indicator');
+    const floatingMenu = document.getElementById('floating-menu');
+    const progressThread = document.getElementById('reading-progress');
+    const aboutSection = document.getElementById('about');
+    const collageImages = document.querySelectorAll('.collage-img');
+    const heroScatterItems = document.querySelectorAll('.hero-scatter-item');
+    const overlayMenu = document.getElementById('overlay-menu');
+    const openMenuBtn = document.getElementById('open-menu');
+    const closeMenuBtn = document.getElementById('close-menu');
+
+    // Menu logic
+    openMenuBtn.addEventListener('click', () => {
+        overlayMenu.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    closeMenuBtn.addEventListener('click', () => {
+        overlayMenu.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    });
+
+    // Initialize collage images state - starts scattered
+    collageImages.forEach(img => {
+        const x = img.dataset.x;
+        const y = img.dataset.y;
+        const rot = img.dataset.rot;
+        img.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
+        img.style.opacity = '0';
+    });
+
+    window.addEventListener('scroll', () => {
+        const scrollPos = window.scrollY;
+        const windowHeight = window.innerHeight;
+        
+        // 1. HERO SCATTER & FADE LOGIC (Scatter Out)
+        if (scrollPos < windowHeight) {
+            const ratio = scrollPos / (windowHeight * 0.7);
+            const clampedRatio = Math.min(Math.max(ratio, 0), 1);
+            const reverseRatio = 1 - clampedRatio;
+
+            // Central Logo Fades Out
+            heroLogo.style.opacity = reverseRatio;
+            heroLogo.style.transform = `scale(${1 - clampedRatio * 0.1})`;
+
+            // Links & Icons Scatter Out with Rotation
+            heroScatterItems.forEach(item => {
+                const scatterX = parseFloat(item.dataset.scatterX) || 0;
+                const scatterY = parseFloat(item.dataset.scatterY) || 0;
+                const scatterRot = parseFloat(item.dataset.scatterRot) || 0;
+
+                const curX = scatterX * clampedRatio;
+                const curY = scatterY * clampedRatio;
+                const curRot = scatterRot * clampedRatio;
+
+                item.style.transform = `translate(${curX}px, ${curY}px) rotate(${curRot}deg)`;
+                item.style.opacity = reverseRatio;
+            });
+
+            heroIndicator.style.opacity = reverseRatio;
+
+            // Floating Menu Fades In simultaneously
+            floatingMenu.style.opacity = clampedRatio;
+            floatingMenu.style.pointerEvents = scrollPos > 100 ? 'auto' : 'none';
+        } else {
+            floatingMenu.style.opacity = '1';
+            floatingMenu.style.pointerEvents = 'auto';
+        }
+
+        // 2. ABOUT SECTION COLLAGE SCATTER IN logic
+        const aboutRect = aboutSection.getBoundingClientRect();
+        // Start triggering when section top enters 90% of viewport
+        const triggerStart = windowHeight; 
+        const triggerEnd = 0; // Section top is at the top of viewport
+
+        if (aboutRect.top < triggerStart && aboutRect.bottom > 0) {
+            const progress = (triggerStart - aboutRect.top) / triggerStart;
+            const clampedProgress = Math.min(Math.max(progress, 0), 1);
+
+            collageImages.forEach(img => {
+                const startX = parseFloat(img.dataset.x);
+                const startY = parseFloat(img.dataset.y);
+                const rot = parseFloat(img.dataset.rot);
+
+                // Moves from scattered position (startX, startY) to original position (0, 0)
+                const currentX = startX * (1 - clampedProgress);
+                const currentY = startY * (1 - clampedProgress);
+
+                img.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rot}deg)`;
+                img.style.opacity = clampedProgress;
+            });
+        }
+
+        // 3. PROGRESS BAR
+        const totalHeight = document.documentElement.scrollHeight - windowHeight;
+        const progressVal = (scrollPos / totalHeight) * 100;
+        if(progressThread) progressThread.style.height = `${progressVal}%`;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.style.scrollBehavior = 'smooth';
+    });
+</script>
+</body></html>
