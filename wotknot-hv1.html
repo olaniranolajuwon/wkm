@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WOTKNOT — Issue 04</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Playfair+Display:ital@1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --fg:#f5f4f1;
+    --dim:#6b6b6b;
+    --dimmer:#3a3a3a;
+    --hair:#2a2a2a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{
+    scroll-snap-type:y proximity;
+  }
+  html,body{
+    background:var(--bg);
+    color:var(--fg);
+    height:100%;
+    font-family:'Outfit',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  section{
+    scroll-snap-align:start;
+  }
+  .page{
+    min-height:100vh;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:48px 64px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:56px;
+    padding-bottom:64px;
+  }
+  .nav-links{
+    display:flex;
+    gap:56px;
+    flex:1;
+    justify-content:center;
+  }
+  .nav-links a{
+    color:var(--fg);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:400;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    position:relative;
+    padding-bottom:6px;
+    transition:color .35s ease;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:0;
+    width:0%;
+    height:1px;
+    background:var(--fg);
+    transition:width .35s ease;
+  }
+  .nav-links a:hover{color:var(--fg);}
+  .nav-links a:hover::after{width:100%;}
+  .nav-links a:focus-visible{outline:1px solid var(--fg); outline-offset:4px;}
+
+  .menu-toggle{
+    width:38px;height:38px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    display:grid;
+    grid-template-columns:repeat(3,5px);
+    grid-template-rows:repeat(3,5px);
+    gap:4px;
+    place-content:center;
+    place-items:center;
+    cursor:pointer;
+    position:absolute;
+    right:64px;
+    top:48px;
+  }
+  .menu-toggle span{
+    width:4px;height:4px;border-radius:50%;
+    background:var(--fg);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .menu-toggle:hover span{background:var(--dim);}
+  .menu-toggle:focus-visible{outline:1px solid var(--fg); outline-offset:4px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    flex:1;
+    display:flex;
+    align-items:center;
+    position:relative;
+  }
+  h1{
+    font-family:'Outfit',sans-serif;
+    font-weight:300;
+    font-size:clamp(5rem, 13vw, 13rem);
+    letter-spacing:0.01em;
+    line-height:0.9;
+    white-space:nowrap;
+    user-select:none;
+  }
+
+  /* ---------- ISSUE INDEX (right side) ---------- */
+  .issue-index{
+    position:absolute;
+    right:0;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .issue-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    border:none;
+    background:none;
+    padding:4px 0;
+  }
+  .issue-row .line{
+    width:42px;
+    height:1px;
+    background:var(--hair);
+    transition:background .3s ease, width .3s ease;
+  }
+  .issue-row .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--dimmer);
+    transition:color .3s ease;
+  }
+  .issue-row.active .line{background:var(--fg); width:56px;}
+  .issue-row.active .label{color:var(--fg);}
+  .issue-row:hover .line{background:var(--dim);}
+  .issue-row:hover .label{color:var(--dim);}
+  .issue-row:focus-visible{outline:1px solid var(--fg); outline-offset:4px;}
+
+  /* ---------- FOOTER CONTENT ---------- */
+  footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:40px;
+    padding-top:40px;
+  }
+  .featuring{
+    max-width:420px;
+  }
+  .featuring .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--dim);
+    margin-bottom:18px;
+  }
+  .featuring .names{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size:28px;
+    line-height:1.5;
+    color:#4d4d4d;
+  }
+  .featuring .names a{
+    color:#9a9a9a;
+    text-decoration:none;
+    transition:color .3s ease;
+  }
+  .featuring .names a:hover{color:var(--fg);}
+  .featuring .sep{color:var(--dimmer); padding:0 6px;}
+
+  .quote{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size:26px;
+    line-height:1.55;
+    text-align:right;
+    max-width:520px;
+    color:var(--fg);
+  }
+
+  .add-btn{
+    position:absolute;
+    right:64px;
+    bottom:48px;
+    width:46px;height:46px;
+    border-radius:50%;
+    border:1px solid var(--hair);
+    background:none;
+    color:var(--fg);
+    font-size:20px;
+    cursor:pointer;
+    transition:border-color .3s ease, transform .3s ease, background .3s ease;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .add-btn:hover{border-color:var(--fg); transform:rotate(45deg);}
+  .add-btn:focus-visible{outline:1px solid var(--fg); outline-offset:4px;}
+
+  @media (max-width: 860px){
+    .page{padding:28px 24px;}
+    nav{padding-bottom:48px;}
+    .nav-links{display:none;}
+    .menu-toggle{position:static; margin-left:auto;}
+    nav{justify-content:flex-end;}
+    h1{font-size:18vw; white-space:normal; line-height:1;}
+    .issue-index{
+      position:static;
+      transform:none;
+      flex-direction:row;
+      flex-wrap:wrap;
+      margin-top:32px;
+      gap:24px;
+    }
+    .issue-row .line{display:none;}
+    footer{flex-direction:column; align-items:flex-start;}
+    .quote{text-align:left;}
+    .add-btn{position:static; margin-top:24px;}
+  }
+
+  @media (max-width:860px){
+    .page{ height:auto; min-height:100vh; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+    html{scroll-snap-type:none;}
+  }
+
+  /* ---------- LINEUP / CONTRIBUTORS ---------- */
+  :root{
+    --orange:#ff5a2c;
+  }
+  .lineup{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:100px 64px;
+  }
+  .scatter{
+    position:relative;
+    width:100%;
+    aspect-ratio:2 / 1;
+  }
+  .tile{
+    position:absolute;
+    display:block;
+    text-decoration:none;
+    outline-offset:6px;
+  }
+  .tile-img{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
+  .stack-back,
+  .stack-front{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    border-radius:2px;
+    transition:filter .6s ease, transform .7s ease, opacity .6s ease;
+  }
+  .stack-back{
+    z-index:1;
+    transform:translate(3%, 4%) rotate(-2deg) scale(.97);
+    filter:grayscale(1) brightness(.55);
+    opacity:.85;
+  }
+  .stack-front{
+    z-index:2;
+    transform:translate(0,0) rotate(0deg) scale(1);
+    filter:grayscale(1) brightness(.95);
+  }
+  .tile:hover .stack-front,
+  .tile:focus-visible .stack-front{
+    filter:grayscale(0) brightness(1);
+    transform:scale(1.015);
+  }
+  .tile:hover .stack-back,
+  .tile:focus-visible .stack-back{
+    filter:grayscale(0) brightness(.8);
+  }
+
+  /* individual scattered positions */
+  .tile-1{ left:48%;  top:2%;   width:25%; height:46%; z-index:2; }
+  .tile-2{ left:65%;  top:6%;   width:17%; height:42%; z-index:3; }
+  .tile-3{ left:79%;  top:3%;   width:20%; height:58%; z-index:2; }
+  .tile-4{ left:4%;   top:16%;  width:20%; height:62%; z-index:1; }
+  .tile-5{ left:26%;  top:40%;  width:15%; height:46%; z-index:2; }
+  .tile-6{ left:48%;  top:58%;  width:15%; height:42%; z-index:1; }
+
+  /* name blocks, styled to match the reference's large light type */
+  .names-block{
+    position:absolute;
+    display:flex;
+    flex-direction:column;
+    font-family:'Outfit', sans-serif;
+    font-weight:400;
+    font-size:clamp(1.9rem, 3.3vw, 3.6rem);
+    line-height:1.18;
+    letter-spacing:0.01em;
+    color:var(--fg);
+    z-index:4;
+  }
+  .names-block .name{
+    color:inherit;
+    text-decoration:none;
+    transition:color .3s ease;
+  }
+  .names-block .name:hover,
+  .names-block .name:focus-visible{
+    color:var(--orange);
+  }
+  .names-left{
+    left:26%;
+    top:3%;
+    width:24%;
+  }
+  .names-right{
+    left:69%;
+    top:60%;
+    width:27%;
+  }
+
+  /* pairing: hovering a name colors its matching tile */
+  .scatter:has(.name-1:hover) .tile-1 .stack-front,
+  .scatter:has(.name-1:focus-visible) .tile-1 .stack-front,
+  .scatter:has(.name-2:hover) .tile-2 .stack-front,
+  .scatter:has(.name-2:focus-visible) .tile-2 .stack-front,
+  .scatter:has(.name-3:hover) .tile-3 .stack-front,
+  .scatter:has(.name-3:focus-visible) .tile-3 .stack-front,
+  .scatter:has(.name-4:hover) .tile-4 .stack-front,
+  .scatter:has(.name-4:focus-visible) .tile-4 .stack-front,
+  .scatter:has(.name-5:hover) .tile-5 .stack-front,
+  .scatter:has(.name-5:focus-visible) .tile-5 .stack-front,
+  .scatter:has(.name-6:hover) .tile-6 .stack-front,
+  .scatter:has(.name-6:focus-visible) .tile-6 .stack-front{
+    filter:grayscale(0) brightness(1);
+    transform:scale(1.015);
+  }
+
+  @media (max-width:860px){
+    .lineup{ padding:70px 24px 90px; }
+    .scatter{
+      aspect-ratio:auto;
+      display:flex;
+      flex-direction:column;
+      gap:28px;
+    }
+    .tile{
+      position:relative;
+      left:auto !important; top:auto !important;
+      width:100% !important; height:auto !important;
+      aspect-ratio:4/5;
+    }
+    .tile-1{ order:1; } .tile-2{ order:2; } .tile-3{ order:3; }
+    .tile-4{ order:5; } .tile-5{ order:6; } .tile-6{ order:7; }
+    .names-block{
+      position:relative;
+      left:auto !important; top:auto !important;
+      width:100% !important;
+      font-size:clamp(1.8rem, 7vw, 2.6rem);
+    }
+    .names-left{ order:0; }
+    .names-right{ order:4; }
+  }
+</style>
+</head>
+<body>
+<section class="page" id="hero">
+
+  <nav aria-label="Primary">
+    <div class="nav-links">
+      <a href="#issues">Issues</a>
+      <a href="#culture">Culture</a>
+      <a href="#sound">Sound</a>
+      <a href="#style">Style</a>
+      <a href="#studio">Studio</a>
+    </div>
+  </nav>
+  <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="hero">
+    <h1>WOTKNOT</h1>
+
+    <div class="issue-index" role="tablist" aria-label="Issue sections">
+      <button class="issue-row active" role="tab" aria-selected="true">
+        <span class="line"></span><span class="label">01 · COVER</span>
+      </button>
+      <button class="issue-row" role="tab" aria-selected="false">
+        <span class="line"></span><span class="label">02 · SOUND</span>
+      </button>
+      <button class="issue-row" role="tab" aria-selected="false">
+        <span class="line"></span><span class="label">03 · STYLE</span>
+      </button>
+      <button class="issue-row" role="tab" aria-selected="false">
+        <span class="line"></span><span class="label">04 · CULTURE</span>
+      </button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="featuring">
+      <div class="eyebrow">Featuring</div>
+      <div class="names">
+        <a href="#">Aṣa</a><span class="sep">·</span><a href="#">Tems</a><span class="sep">·</span><a href="#">Skepta</a><br>
+        <a href="#">Doja</a><span class="sep">·</span><a href="#">Bree Runway</a>
+      </div>
+    </div>
+
+    <p class="quote">
+      “A quarterly study of the four pillars that<br>
+      shape culture and inspire everyday living.”
+    </p>
+  </footer>
+
+  <button class="add-btn" aria-label="Expand">+</button>
+</section>
+
+<section class="lineup" id="contributors" aria-label="Issue contributors">
+  <div class="scatter">
+
+    <a class="tile tile-1" href="#" aria-label="Emaxee Manuel Oke Farhan">
+      <div class="tile-img">
+        <img class="stack-back" src="https://picsum.photos/seed/wotknot-emaxee-b/600/880" alt="" aria-hidden="true" loading="lazy">
+        <img class="stack-front" src="https://picsum.photos/seed/wotknot-emaxee/600/880" alt="Emaxee Manuel Oke Farhan" loading="lazy">
+      </div>
+    </a>
+
+    <a class="tile tile-2" href="#" aria-label="Niamh Carter">
+      <div class="tile-img">
+        <img class="stack-back" src="https://picsum.photos/seed/wotknot-niamh-b/600/800" alt="" aria-hidden="true" loading="lazy">
+        <img class="stack-front" src="https://picsum.photos/seed/wotknot-niamh/600/800" alt="Niamh Carter" loading="lazy">
+      </div>
+    </a>
+
+    <a class="tile tile-3" href="#" aria-label="Yusuf Bankole">
+      <div class="tile-img">
+        <img class="stack-back" src="https://picsum.photos/seed/wotknot-yusuf-b/600/720" alt="" aria-hidden="true" loading="lazy">
+        <img class="stack-front" src="https://picsum.photos/seed/wotknot-yusuf/600/720" alt="Yusuf Bankole" loading="lazy">
+      </div>
+    </a>
+
+    <a class="tile tile-4" href="#" aria-label="Priya Anand">
+      <div class="tile-img">
+        <img class="stack-back" src="https://picsum.photos/seed/wotknot-priya-b/600/880" alt="" aria-hidden="true" loading="lazy">
+        <img class="stack-front" src="https://picsum.photos/seed/wotknot-priya/600/880" alt="Priya Anand" loading="lazy">
+      </div>
+    </a>
+
+    <a class="tile tile-5" href="#" aria-label="Chidi Okonkwo">
+      <div class="tile-img">
+        <img class="stack-back" src="https://picsum.photos/seed/wotknot-chidi-b/600/880" alt="" aria-hidden="true" loading="lazy">
+        <img class="stack-front" src="https://picsum.photos/seed/wotknot-chidi/600/880" alt="Chidi Okonkwo" loading="lazy">
+      </div>
+    </a>
+
+    <a class="tile tile-6" href="#" aria-label="Lara Osei">
+      <div class="tile-img">
+        <img class="stack-back" src="https://picsum.photos/seed/wotknot-lara-b/600/720" alt="" aria-hidden="true" loading="lazy">
+        <img class="stack-front" src="https://picsum.photos/seed/wotknot-lara/600/720" alt="Lara Osei" loading="lazy">
+      </div>
+    </a>
+
+    <div class="names-block names-left">
+      <a class="name name-1" href="#">Emaxee Manuel Oke Farhan</a>
+      <a class="name name-2" href="#">Niamh Carter</a>
+      <a class="name name-3" href="#">Yusuf Bankole</a>
+    </div>
+
+    <div class="names-block names-right">
+      <a class="name name-4" href="#">Priya Anand</a>
+      <a class="name name-5" href="#">Chidi Okonkwo</a>
+      <a class="name name-6" href="#">Lara Osei</a>
+    </div>
+
+  </div>
+</section>
+</body>
+</html>
