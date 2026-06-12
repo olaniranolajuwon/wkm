@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>WOTKNOT · Issue 07</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#000;color:#fff;font-family:'Montserrat',sans-serif;font-weight:300;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+@media(hover:none),(pointer:coarse){body{cursor:auto}}
+::selection{background:#e05c2a;color:#000}
+
+/* ── GRAIN ── */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.1;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:200px;animation:grain .8s steps(5) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,3%)}80%{transform:translate(3%,1%)}100%{transform:translate(0,0)}}
+
+/* ── CURSOR ── */
+.cursor{position:fixed;top:0;left:0;width:10px;height:10px;border-radius:50%;background:#fff;pointer-events:none;z-index:9999;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .3s,height .3s;will-change:transform}
+.cursor.big{width:70px;height:70px}
+.cring{position:fixed;top:0;left:0;width:36px;height:36px;border:1px solid rgba(255,255,255,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);mix-blend-mode:difference;will-change:transform}
+@media(hover:none),(pointer:coarse){.cursor,.cring{display:none}}
+
+/* ── LOADER ── */
+.loader{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(1.5rem,3vw,2.5rem)}
+.loader__mark{font-family:'Montserrat',sans-serif;font-weight:300;font-size:clamp(1rem,1.3vw,1.25rem);letter-spacing:.1em}
+.loader__top{display:flex;justify-content:space-between}
+.loader__meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.22em;opacity:.5;text-align:right;line-height:1.8}
+.loader__num{font-family:'Montserrat',sans-serif;font-weight:800;font-size:clamp(5rem,14vw,12rem);letter-spacing:-.06em;line-height:1;text-align:center}
+.loader__bar{height:1px;background:rgba(255,255,255,.12);position:relative;overflow:hidden;margin:1rem 0}
+.loader__bar i{position:absolute;left:0;top:0;bottom:0;background:#fff;width:0;transition:width .4s cubic-bezier(.77,0,.18,1)}
+.loader__bottom{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;opacity:.45}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:500;display:grid;grid-template-columns:auto 1fr auto;align-items:start;padding:0;pointer-events:none}
+
+/* Logo box — top left, matches reference exactly */
+.nav__logo{
+  pointer-events:auto;
+  display:flex;align-items:center;
+  background:rgba(10,10,12,.85);
+  border:1px solid rgba(255,255,255,.07);
+  padding:clamp(.7rem,1.5vw,1.2rem) clamp(.9rem,2vw,1.6rem);
+  gap:.4rem;
+  opacity:0;
+  transition:opacity .5s ease;
+}
+.nav__logo.show{opacity:1}
+.nav__logo-wordmark{
+  font-family:'Montserrat',sans-serif;
+  font-weight:600;
+  font-size:clamp(.85rem,1vw,1rem);
+  letter-spacing:.05em;
+}
+.nav__logo sup{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;opacity:.55}
+
+/* Spacer */
+.nav__spacer{flex:1}
+
+/* Menu box — top right, matches reference */
+.nav__right{
+  pointer-events:auto;
+  display:flex;align-items:center;gap:0;
+  background:rgba(10,10,12,.85);
+  border:1px solid rgba(255,255,255,.07);
+}
+.nav__links{
+  display:flex;gap:0;
+  font-family:'Montserrat',sans-serif;
+  font-size:.62rem;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.24em;
+  padding:clamp(.7rem,1.5vw,1.2rem) clamp(1rem,2vw,2rem);
+}
+.nav__links a{
+  padding:.2rem .6rem;
+  position:relative;
+  transition:color .25s ease;
+  white-space:nowrap;
+}
+.nav__links a::after{content:"";position:absolute;left:.6rem;right:.6rem;bottom:-.1rem;height:1px;background:#fff;transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.nav__links a:hover::after{transform:scaleX(1)}
+
+/* 9-dot hamburger */
+.nav__ham{
+  width:clamp(38px,5vw,52px);height:clamp(38px,5vw,52px);
+  border-left:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+  cursor:none;background:transparent;border-top:none;border-right:none;border-bottom:none;
+  flex-shrink:0;
+}
+.nav__ham:hover{background:rgba(255,255,255,.05)}
+.dots-grid{display:grid;grid-template-columns:repeat(3,4px);grid-template-rows:repeat(3,4px);gap:3px}
+.dots-grid span{width:4px;height:4px;border-radius:50%;background:#fff;display:block;
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s ease,background .3s ease}
+
+/* Arrow state: (1,1,1)(0,1,1)(1,0,1) — dots 4 and 8 hidden, rest shift top-right */
+.nav__ham.open .dots-grid span:nth-child(4){opacity:0}
+.nav__ham.open .dots-grid span:nth-child(8){opacity:0}
+.nav__ham.open .dots-grid span:nth-child(1){transform:translate(4px,-4px)}
+.nav__ham.open .dots-grid span:nth-child(2){transform:translate(4px,-4px)}
+.nav__ham.open .dots-grid span:nth-child(3){transform:translate(4px,-4px)}
+.nav__ham.open .dots-grid span:nth-child(5){transform:translate(4px,-4px)}
+.nav__ham.open .dots-grid span:nth-child(7){transform:translate(-4px,4px)}
+.nav__ham.open .dots-grid span:nth-child(9){transform:translate(4px,4px)}
+
+@media(max-width:700px){
+  .nav__links{display:none}
+  .nav__right{background:transparent;border:none}
+  .nav__ham{width:44px;height:44px;border:1px solid rgba(255,255,255,.15);border-radius:50%}
+}
+
+/* ── SECTION HUD — right side of hero ── */
+.hud{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);
+  z-index:400;
+  background:rgba(10,10,12,.75);
+  border:1px solid rgba(255,255,255,.07);
+  border-right:none;
+  padding:1.5rem 1rem 1.5rem 1.2rem;
+  display:flex;flex-direction:column;gap:14px;
+  min-width:160px;
+}
+.hud__item{
+  display:flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;text-transform:uppercase;letter-spacing:.22em;
+  color:rgba(255,255,255,.35);
+  cursor:none;background:none;border:none;
+  transition:color .3s ease;
+  text-align:left;
+}
+.hud__item .pip{display:block;width:20px;height:1px;background:currentColor;transition:width .4s cubic-bezier(.16,1,.3,1),background .3s}
+.hud__item.active{color:#fff}
+.hud__item.active .pip{width:40px}
+@media(max-width:900px){.hud{display:none}}
+
+/* ── MENU OVERLAY ── */
+.menu-overlay{
+  position:fixed;inset:0;z-index:480;
+  background:rgba(0,0,0,.96);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;
+  padding:clamp(4rem,10vw,8rem);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.menu-overlay.open{opacity:1;pointer-events:auto}
+.menu-overlay__links{display:flex;flex-direction:column;gap:.2rem;margin-right:clamp(3rem,8vw,8rem)}
+.menu-overlay__links a{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:clamp(2.5rem,6vw,5.5rem);letter-spacing:-.02em;
+  opacity:0;transform:translateY(32px);
+  transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1),color .2s;
+}
+.menu-overlay__links a:hover{color:#e05c2a}
+.menu-overlay.open .menu-overlay__links a{opacity:1;transform:translateY(0)}
+.menu-overlay.open .menu-overlay__links a:nth-child(1){transition-delay:.04s}
+.menu-overlay.open .menu-overlay__links a:nth-child(2){transition-delay:.09s}
+.menu-overlay.open .menu-overlay__links a:nth-child(3){transition-delay:.14s}
+.menu-overlay.open .menu-overlay__links a:nth-child(4){transition-delay:.19s}
+.menu-overlay.open .menu-overlay__links a:nth-child(5){transition-delay:.24s}
+.menu-overlay__sub{opacity:0;transition:opacity .5s ease .3s;display:flex;flex-direction:column;gap:2rem}
+.menu-overlay.open .menu-overlay__sub{opacity:1}
+.menu-overlay__sub h5{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.4);font-weight:400;margin-bottom:.5rem}
+.menu-overlay__sub ul{list-style:none;display:flex;flex-direction:column;gap:.3rem}
+.menu-overlay__sub ul a{font-family:'Montserrat',sans-serif;font-weight:300;font-size:1rem;color:rgba(255,255,255,.7);transition:color .2s}
+.menu-overlay__sub ul a:hover{color:#fff}
+
+/* Mobile menu */
+.mobile-overlay{
+  position:fixed;inset:0;z-index:480;
+  background:#000;
+  padding:5rem 2rem 2.5rem;
+  transform:translateY(-100%);
+  transition:transform .6s cubic-bezier(.34,1.56,.64,1);
+  overflow-y:auto;
+}
+.mobile-overlay.open{transform:translateY(0)}
+.mobile-overlay__links{display:flex;flex-direction:column;gap:.1rem;margin-bottom:2.5rem}
+.mobile-overlay__links a{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:clamp(2rem,6vw,2.8rem);letter-spacing:-.01em;
+  padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.08);
+  opacity:0;transform:translateY(16px);
+  transition:opacity .5s ease,transform .5s ease,color .2s;
+}
+.mobile-overlay.open .mobile-overlay__links a{opacity:1;transform:translateY(0)}
+.mobile-overlay.open .mobile-overlay__links a:nth-child(1){transition-delay:.1s}
+.mobile-overlay.open .mobile-overlay__links a:nth-child(2){transition-delay:.15s}
+.mobile-overlay.open .mobile-overlay__links a:nth-child(3){transition-delay:.2s}
+.mobile-overlay.open .mobile-overlay__links a:nth-child(4){transition-delay:.25s}
+.mobile-overlay.open .mobile-overlay__links a:nth-child(5){transition-delay:.3s}
+.mobile-overlay__links a:hover{color:#e05c2a}
+.mobile-overlay__socials{display:flex;gap:1.5rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:rgba(255,255,255,.45);margin-bottom:1.5rem}
+.mobile-overlay__label{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.35);margin-bottom:.5rem}
+.mobile-overlay__sub{border-top:1px solid rgba(255,255,255,.08);padding-top:1rem;display:flex;align-items:center;gap:1rem}
+.mobile-overlay__sub input{all:unset;flex:1;font-family:'Montserrat',sans-serif;font-size:.9rem;color:#fff;padding:.4rem 0}
+.mobile-overlay__sub input::placeholder{color:rgba(255,255,255,.3)}
+.mobile-overlay__sub button{all:unset;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:#e05c2a;cursor:none;white-space:nowrap}
+@media(min-width:701px){.mobile-overlay{display:none}}
+
+/* ── HERO SECTION ── */
+.hero{
+  position:relative;min-height:100vh;width:100%;
+  background:#000;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* The massive WOTKNOT — ultra light, bottom-left, bleeds off right */
+.hero__wotknot{
+  position:absolute;
+  left:clamp(1.5rem,4vw,4rem);
+  bottom:clamp(10rem,22vh,20rem);
+  font-family:'Montserrat',sans-serif;
+  font-weight:300;
+  font-size:clamp(5rem,20vw,22rem);
+  line-height:.85;
+  letter-spacing:-.03em;
+  white-space:nowrap;
+  color:#fff;
+  user-select:none;pointer-events:none;
+  transform-origin:left bottom;
+  will-change:transform,opacity;
+  z-index:2;
+}
+
+/* Bottom panels */
+.hero__bottom{
+  position:absolute;bottom:0;left:0;right:0;
+  display:grid;grid-template-columns:auto 1fr auto;
+  align-items:end;gap:0;
+  z-index:3;
+}
+
+/* Featuring box — bottom left */
+.hero__feat{
+  background:rgba(18,18,24,.8);
+  border:1px solid rgba(255,255,255,.08);
+  border-bottom:none;border-left:none;
+  padding:clamp(.9rem,2vw,1.4rem) clamp(1rem,2.5vw,1.8rem);
+  min-width:200px;
+}
+.hero__feat .label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;text-transform:uppercase;letter-spacing:.28em;
+  color:rgba(255,255,255,.4);margin-bottom:.5rem;
+}
+.hero__feat .names{
+  font-family:'Montserrat',sans-serif;font-weight:300;
+  font-size:clamp(.8rem,.9vw,.95rem);letter-spacing:.04em;
+  line-height:1.6;color:#fff;font-style:italic;
+}
+
+/* Quote box — center right, slightly elevated */
+.hero__quote-wrap{
+  display:flex;justify-content:flex-end;align-items:flex-end;
+  padding-bottom:clamp(1.5rem,3vh,2.5rem);
+  padding-right:clamp(10rem,18vw,16rem);/* leave room for hud */
+}
+.hero__quote{
+  background:rgba(18,18,24,.75);
+  border:1px solid rgba(255,255,255,.07);
+  padding:clamp(1rem,2vw,1.8rem) clamp(1.2rem,2.5vw,2rem);
+  max-width:400px;
+}
+.hero__quote blockquote{
+  font-family:'Bodoni Moda',serif;font-style:italic;
+  font-size:clamp(.9rem,1.2vw,1.15rem);line-height:1.5;color:#fff;
+  margin-bottom:.75rem;
+}
+.hero__quote .know-more{
+  font-family:'JetBrains Mono',monospace;font-size:.58rem;
+  text-transform:uppercase;letter-spacing:.2em;color:rgba(255,255,255,.45);
+  display:inline-flex;align-items:center;gap:.4rem;transition:color .2s;
+}
+.hero__quote .know-more:hover{color:#fff}
+.hero__quote .know-more svg{width:10px;height:10px}
+
+@media(max-width:700px){
+  .hero__wotknot{font-size:clamp(3.5rem,15vw,6rem);bottom:clamp(8rem,18vh,12rem)}
+  .hero__quote-wrap{padding-right:1rem}
+  .hero__bottom{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .hud{display:none}
+}
+
+/* ── FEATURING SECTION ── */
+.featuring{
+  min-height:100vh;background:#000;
+  padding:clamp(4rem,8vw,6rem) clamp(1.5rem,5vw,5rem);
+  position:relative;overflow:hidden;
+}
+.featuring__label{
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  text-transform:uppercase;letter-spacing:.3em;color:rgba(255,255,255,.35);
+  margin-bottom:clamp(2rem,5vh,4rem);
+}
+
+/* Two-column masonry-style layout matching the reference exactly */
+.featuring__layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 4rem;
+  position:relative;
+}
+
+/* Left half: large image top-left, name beside, smaller image below name */
+.feat-left{position:relative}
+.feat-right{position:relative}
+
+/* Left group 1: big image + names stacked */
+.feat-group{
+  display:flex;gap:2rem;
+  margin-bottom:clamp(2rem,4vw,4rem);
+  align-items:flex-start;
+}
+.feat-group.bottom{margin-bottom:0}
+
+.feat-img{
+  background:rgba(220,220,220,1);
+  flex-shrink:0;overflow:hidden;border-radius:1px;
+  position:relative;
+  cursor:none;
+}
+/* grayscale with color on hover */
+.feat-img img,.feat-img .icolor{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;background-size:cover;background-position:center;
+}
+.feat-img .ibw{
+  position:absolute;inset:0;width:100%;height:100%;
+  background-size:cover;background-position:center;
+  filter:grayscale(100%) contrast(1.05);
+  transition:opacity .6s cubic-bezier(.16,1,.3,1);
+}
+.feat-img .icolor{
+  background-size:cover;background-position:center;
+  opacity:0;
+  transition:opacity .6s cubic-bezier(.16,1,.3,1);
+}
+.feat-group:hover .feat-img .ibw{opacity:0}
+.feat-group:hover .feat-img .icolor{opacity:1}
+
+/* Name typography — light, large, stacked lines like reference */
+.feat-names{
+  font-family:'Montserrat',sans-serif;font-weight:300;
+  font-size:clamp(1.8rem,3.5vw,3.2rem);
+  line-height:1.05;letter-spacing:-.01em;
+  color:#fff;
+  transition:color .3s ease;
+}
+.feat-group:hover .feat-names{color:#e05c2a}
+
+/* Image sizes matching the reference proportions */
+.feat-img--tall{width:clamp(120px,14vw,200px);aspect-ratio:3/4.5}
+.feat-img--sq{width:clamp(140px,16vw,230px);aspect-ratio:3/3.2}
+.feat-img--med{width:clamp(110px,12vw,180px);aspect-ratio:3/4}
+
+/* Right side: 3 stacked images with names beside */
+.feat-right-row{
+  display:flex;gap:2rem;align-items:flex-start;
+  margin-bottom:clamp(1.5rem,3vw,3rem);
+}
+.feat-right-row .feat-names{font-size:clamp(1.6rem,3vw,2.8rem)}
+
+/* Entrance animation */
+.feat-anim{
+  opacity:0;will-change:transform,opacity;
+}
+.feat-anim.from-right{transform:translateX(80px)}
+.feat-anim.from-left{transform:translateX(-80px)}
+.feat-anim.from-below{transform:translateY(60px)}
+.feat-anim.revealed{
+  opacity:1;transform:translate(0,0);
+  transition:opacity .85s cubic-bezier(.34,1.56,.64,1),transform .85s cubic-bezier(.34,1.56,.64,1);
+}
+
+@media(max-width:900px){
+  .featuring__layout{grid-template-columns:1fr;gap:2rem}
+  .feat-names{font-size:clamp(1.4rem,5vw,2.2rem)}
+  .feat-img--tall{width:clamp(90px,20vw,140px)}
+  .feat-img--sq{width:clamp(100px,22vw,160px)}
+}
+
+/* ── SHOP ── */
+.shop{
+  min-height:100vh;background:#000;
+  padding:clamp(4rem,8vw,6rem) clamp(1.5rem,5vw,5rem);
+}
+.shop__head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding-bottom:1.25rem;margin-bottom:clamp(2.5rem,5vw,4rem);
+  gap:2rem;
+}
+.shop__title-block .lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.28em;color:rgba(255,255,255,.35);margin-bottom:.4rem}
+.shop__h{font-family:'Montserrat',sans-serif;font-weight:300;font-size:clamp(2rem,5vw,4.5rem);letter-spacing:-.03em;line-height:.95}
+.shop__meta{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.35)}
+.shop__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1.5rem,3vw,2.5rem);margin-bottom:3rem}
+.shop__item{cursor:none}
+.shop__cover{position:relative;aspect-ratio:3/4;overflow:hidden;background:#111;border-radius:1px;box-shadow:0 24px 50px -16px rgba(0,0,0,.7)}
+.shop__cover .cbg{position:absolute;inset:-6%;background-size:cover;background-position:center;filter:grayscale(15%) contrast(1.05);transition:transform .7s cubic-bezier(.16,1,.3,1),filter .5s ease;will-change:transform}
+.shop__cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.6) 100%)}
+.shop__cover .inum{position:absolute;top:.8rem;left:.9rem;z-index:1;font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(1.1rem,1.6vw,1.5rem);letter-spacing:-.03em}
+.shop__cover .iname{position:absolute;bottom:.8rem;left:.9rem;right:.9rem;z-index:1;font-family:'Bodoni Moda',serif;font-size:clamp(.95rem,1.2vw,1.2rem);line-height:1.1}
+.shop__item:hover .shop__cover .cbg{transform:scale(1.05);filter:grayscale(0%) contrast(1.08)}
+.shop__row{display:grid;grid-template-columns:1fr auto;align-items:end;gap:.5rem;padding-bottom:.7rem;border-bottom:1px solid rgba(255,255,255,.08);margin-top:.75rem}
+.shop__row .stitle{font-family:'Bodoni Moda',serif;font-style:italic;font-size:clamp(.9rem,1.1vw,1.1rem);color:#fff}
+.shop__row .sinfo{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,255,255,.35);margin-top:.2rem}
+.shop__row .sprice{font-family:'Montserrat',sans-serif;font-weight:600;font-size:clamp(.9rem,1vw,1rem)}
+.shop__row .sold{color:rgba(255,255,255,.35);text-decoration:line-through}
+.shop__foot{display:flex;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:.7rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.24em;border:1px solid rgba(255,255,255,.25);padding:.85rem 2rem;position:relative;overflow:hidden;cursor:none;transition:border-color .3s}
+.btn::before{content:"";position:absolute;inset:0;background:#fff;transform:translateY(101%);transition:transform .45s cubic-bezier(.77,0,.18,1)}
+.btn:hover{border-color:#fff;color:#000}
+.btn:hover::before{transform:translateY(0)}
+.btn span,.btn .arr{position:relative;z-index:1}
+.btn .arr{transition:transform .35s ease}
+.btn:hover .arr{transform:translateX(4px)}
+@media(max-width:760px){.shop__grid{grid-template-columns:1fr 1fr}.shop__head{flex-direction:column;align-items:flex-start}}
+@media(max-width:460px){.shop__grid{grid-template-columns:1fr}}
+
+/* ── FOOTER ── */
+.footer{background:#000;border-top:1px solid rgba(255,255,255,.08);padding:clamp(4rem,8vw,6rem) clamp(1.5rem,5vw,5rem) clamp(1.5rem,3vw,2.5rem)}
+.footer__manifesto{max-width:820px;margin-bottom:clamp(2.5rem,5vw,4rem)}
+.footer__manifesto p{font-family:'Bodoni Moda',serif;font-style:italic;font-size:clamp(1.1rem,1.8vw,1.65rem);line-height:1.45;color:#fff}
+.footer__pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(255,255,255,.08);margin-top:2rem}
+.footer__pillar{padding:1.2rem 1rem 1.2rem 0;border-right:1px solid rgba(255,255,255,.08)}
+.footer__pillar:last-child{border-right:none}
+.footer__pillar .pn{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#e05c2a;margin-bottom:.35rem}
+.footer__pillar h3{font-family:'Montserrat',sans-serif;font-weight:500;font-size:clamp(.9rem,1.2vw,1.15rem);letter-spacing:.02em;margin-bottom:.3rem}
+.footer__pillar p{font-family:'Inter',sans-serif;font-size:.72rem;color:rgba(255,255,255,.45);line-height:1.5}
+.footer__hr{height:1px;background:rgba(255,255,255,.08);margin:clamp(2rem,4vw,3rem) 0}
+.footer__cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;margin-bottom:clamp(2rem,4vw,3rem)}
+.footer__col-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.35);font-weight:400;margin-bottom:.8rem}
+.footer__wordmark-sm{font-family:'Montserrat',sans-serif;font-weight:800;font-size:clamp(1.1rem,1.8vw,1.6rem);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem}
+.footer__blurb{font-family:'Bodoni Moda',serif;font-style:italic;font-size:clamp(.9rem,1vw,1rem);line-height:1.5;color:rgba(255,255,255,.55);max-width:30ch}
+.footer__cols ul{list-style:none}
+.footer__cols ul li{margin-bottom:.3rem}
+.footer__cols ul a{font-family:'Inter',sans-serif;font-size:.85rem;color:rgba(255,255,255,.55);transition:color .2s}
+.footer__cols ul a:hover{color:#fff}
+.footer__bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.3)}
+.footer__bottom .c{text-align:center}
+.footer__bottom .r{text-align:right}
+.footer__big{margin:3rem 0 0;font-family:'Montserrat',sans-serif;font-weight:800;font-size:clamp(4rem,20vw,20rem);line-height:.85;letter-spacing:-.055em;text-align:center;background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 100%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none}
+@media(max-width:900px){.footer__cols{grid-template-columns:1fr 1fr;gap:2rem}.footer__pillars{grid-template-columns:1fr 1fr}.footer__pillar:nth-child(2){border-right:none}}
+@media(max-width:560px){.footer__cols{grid-template-columns:1fr}.footer__pillars{grid-template-columns:1fr}.footer__pillar{border-right:none}.footer__bottom{grid-template-columns:1fr;text-align:center}.footer__bottom .c,.footer__bottom .r{text-align:center}}
+
+/* fade-in util */
+.fi{opacity:0;will-change:transform,opacity}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="cursor" id="cur"></div>
+<div class="cring" id="cring"></div>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader__top">
+    <div class="loader__mark">Wotknot <sup style="font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;opacity:.5">® mag</sup></div>
+    <div class="loader__meta">Issue 07 · Vol. III<br>Lagos / London / Houston</div>
+  </div>
+  <div>
+    <div class="loader__num" id="lnum">00</div>
+    <div class="loader__bar"><i id="lbar"></i></div>
+  </div>
+  <div class="loader__bottom">
+    <span>Loading dispatch</span>
+    <span id="lstatus">Composing…</span>
+    <span>06 / 06 / 26</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <a href="#hero" class="nav__logo" id="navlogo">
+    <span class="nav__logo-wordmark">Wotknot<sup>® mag</sup></span>
+  </a>
+  <div class="nav__spacer"></div>
+  <div class="nav__right">
+    <nav class="nav__links">
+      <a href="#featuring">Music</a>
+      <a href="#featuring">Art</a>
+      <a href="#featuring">Fashion</a>
+      <a href="#featuring">Lifestyle</a>
+      <a href="#shop">Archive</a>
+    </nav>
+    <button class="nav__ham" id="ham" aria-label="Menu" aria-expanded="false">
+      <div class="dots-grid">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+    </button>
+  </div>
+</header>
+
+<!-- HUD -->
+<aside class="hud" id="hud">
+  <button class="hud__item active" data-jump="hero"><span class="pip"></span>00 · Cover</button>
+  <button class="hud__item" data-jump="featuring"><span class="pip"></span>01 · Featuring</button>
+  <button class="hud__item" data-jump="shop"><span class="pip"></span>02 · Shop</button>
+  <button class="hud__item" data-jump="footer"><span class="pip"></span>03 · Footer</button>
+</aside>
+
+<!-- DESKTOP MENU OVERLAY -->
+<div class="menu-overlay" id="moverlay">
+  <div class="menu-overlay__links">
+    <a href="#hero" data-close>Home</a>
+    <a href="#featuring" data-close>Featuring</a>
+    <a href="#shop" data-close>Shop</a>
+    <a href="#footer" data-close>About</a>
+    <a href="#footer" data-close>Archive</a>
+  </div>
+  <div class="menu-overlay__sub">
+    <div>
+      <h5>Sections</h5>
+      <ul>
+        <li><a href="#featuring" data-close>Music</a></li>
+        <li><a href="#featuring" data-close>Art</a></li>
+        <li><a href="#featuring" data-close>Fashion</a></li>
+        <li><a href="#featuring" data-close>Lifestyle</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Follow</h5>
+      <ul>
+        <li><a href="https://instagram.com/wotknotmag" target="_blank" rel="noopener">Instagram ↗</a></li>
+        <li><a href="https://youtube.com/@wotknotmag" target="_blank" rel="noopener">YouTube ↗</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Spotify</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-overlay" id="moverlay-mob">
+  <div class="mobile-overlay__links">
+    <a href="#hero" data-close>Home</a>
+    <a href="#featuring" data-close>Featuring</a>
+    <a href="#shop" data-close>Shop</a>
+    <a href="#footer" data-close>About</a>
+    <a href="#footer" data-close>Archive</a>
+  </div>
+  <div class="mobile-overlay__label">Follow</div>
+  <div class="mobile-overlay__socials">
+    <a href="https://instagram.com/wotknotmag" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://youtube.com/@wotknotmag" target="_blank" rel="noopener">YouTube</a>
+    <a href="#">TikTok</a>
+    <a href="#">Spotify</a>
+  </div>
+  <div class="mobile-overlay__label" style="margin-top:1rem">Subscribe</div>
+  <div class="mobile-overlay__sub">
+    <input type="email" placeholder="your@email.com"/>
+    <button type="button">Subscribe →</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ── HERO ─────────────────────────────── -->
+<section id="hero" data-sec>
+  <div class="hero">
+    <!-- The giant WOTKNOT -->
+    <h1 class="hero__wotknot" id="hwot">WOTKNOT</h1>
+
+    <div class="hero__bottom">
+      <!-- Featuring box bottom-left -->
+      <div class="hero__feat fi" id="hfeat">
+        <div class="label">Featuring</div>
+        <div class="names">Aṣa · Tems · Skepta<br>Doja · Bree Runway</div>
+      </div>
+
+      <!-- Quote box -->
+      <div class="hero__quote-wrap">
+        <div class="hero__quote fi" id="hquote">
+          <blockquote>"A quarterly study of the four pillars that shape culture and inspire everyday living."</blockquote>
+          <a href="#" class="know-more">
+            Know more
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 10L10 2M4 2h6v6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- empty right spacer for hud -->
+      <div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURING ─────────────────────────── -->
+<section id="featuring" data-sec style="background:#000">
+  <div class="featuring">
+    <div class="featuring__label">Issue 07 · Featuring</div>
+
+    <div class="featuring__layout">
+
+      <!-- LEFT COLUMN -->
+      <div class="feat-left">
+        <!-- Group 1: large tall image + names stacked -->
+        <div class="feat-group feat-anim from-right" data-stagger="0">
+          <div class="feat-img feat-img--tall">
+            <div class="ibw" style="background-image:url('https://images.unsplash.com/photo-1534294228306-bd54eb9a7ba8?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="icolor" style="background-image:url('https://images.unsplash.com/photo-1534294228306-bd54eb9a7ba8?w=600&q=80&auto=format&fit=crop')"></div>
+          </div>
+          <div style="padding-top:.5rem">
+            <div class="feat-names">Emaxee<br>Manuel Oke<br>Farhan</div>
+          </div>
+        </div>
+
+        <!-- Group 2: smaller image + names, offset below -->
+        <div class="feat-group feat-anim from-right" data-stagger="1" style="padding-left:clamp(5rem,12vw,10rem)">
+          <div class="feat-img feat-img--sq">
+            <div class="ibw" style="background-image:url('https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="icolor" style="background-image:url('https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80&auto=format&fit=crop')"></div>
+          </div>
+          <div style="padding-top:.5rem">
+            <div class="feat-names">Bree<br>Runway</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="feat-right">
+        <!-- Row 1: 3 staggered images at top, with large names beside last -->
+        <div style="display:flex;gap:clamp(1rem,2vw,2rem);align-items:flex-start;margin-bottom:clamp(2rem,4vw,3rem)">
+          <div class="feat-anim from-left" data-stagger="0" style="display:flex;flex-direction:column;gap:1.5rem">
+            <div class="feat-img feat-img--sq">
+              <div class="ibw" style="background-image:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&q=80&auto=format&fit=crop')"></div>
+              <div class="icolor" style="background-image:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&q=80&auto=format&fit=crop')"></div>
+            </div>
+            <div class="feat-img feat-img--sq" style="margin-top:2rem">
+              <div class="ibw" style="background-image:url('https://images.unsplash.com/photo-1527443224154-c4a573d5f5a6?w=500&q=80&auto=format&fit=crop')"></div>
+              <div class="icolor" style="background-image:url('https://images.unsplash.com/photo-1527443224154-c4a573d5f5a6?w=500&q=80&auto=format&fit=crop')"></div>
+            </div>
+          </div>
+
+          <div class="feat-anim from-left" data-stagger="1" style="display:flex;flex-direction:column;gap:1.5rem;padding-top:3rem">
+            <div class="feat-img feat-img--med">
+              <div class="ibw" style="background-image:url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80&auto=format&fit=crop')"></div>
+              <div class="icolor" style="background-image:url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80&auto=format&fit=crop')"></div>
+            </div>
+            <div class="feat-img feat-img--tall" style="margin-top:1rem">
+              <div class="ibw" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80&auto=format&fit=crop')"></div>
+              <div class="icolor" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80&auto=format&fit=crop')"></div>
+            </div>
+          </div>
+
+          <!-- Names beside last image -->
+          <div class="feat-anim from-left" data-stagger="2" style="padding-top:50%;align-self:flex-end">
+            <div class="feat-names">Emaxee<br>Manuel Oke<br>Farhan</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SHOP ──────────────────────────────── -->
+<section id="shop" data-sec style="background:#000">
+  <div class="shop">
+    <div class="shop__head">
+      <div class="shop__title-block">
+        <div class="lbl">The Magazine · Past Issues</div>
+        <h2 class="shop__h">The Archive</h2>
+      </div>
+      <div class="shop__meta">Issues N°01—06</div>
+    </div>
+    <div class="shop__grid">
+      <a href="#" class="shop__item fi">
+        <div class="shop__cover">
+          <div class="cbg" style="background-image:url('https://images.unsplash.com/photo-1488161628813-04466f6d6e87?w=800&q=85&auto=format&fit=crop')"></div>
+          <span class="inum">N°06</span><span class="iname">The Light Issue</span>
+        </div>
+        <div class="shop__row">
+          <div><div class="stitle">Spring · 2026</div><div class="sinfo">128 pp · printed in Italy</div></div>
+          <div class="sprice">£18</div>
+        </div>
+      </a>
+      <a href="#" class="shop__item fi">
+        <div class="shop__cover">
+          <div class="cbg" style="background-image:url('https://images.unsplash.com/photo-1492447166138-50c3889fccb1?w=800&q=85&auto=format&fit=crop')"></div>
+          <span class="inum">N°05</span><span class="iname">The Cities Issue</span>
+        </div>
+        <div class="shop__row">
+          <div><div class="stitle">Winter · 2025</div><div class="sinfo">144 pp · printed in Italy</div></div>
+          <div class="sprice">£18</div>
+        </div>
+      </a>
+      <a href="#" class="shop__item fi">
+        <div class="shop__cover">
+          <div class="cbg" style="background-image:url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=85&auto=format&fit=crop')"></div>
+          <span class="inum">N°04</span><span class="iname">The Distance Issue</span>
+        </div>
+        <div class="shop__row">
+          <div><div class="stitle">Autumn · 2025</div><div class="sinfo">112 pp · sold out</div></div>
+          <div class="sprice sold">£18</div>
+        </div>
+      </a>
+    </div>
+    <div class="shop__foot">
+      <a href="#" class="btn"><span>See all issues</span><span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer id="footer" data-sec>
+  <div class="footer">
+    <div class="footer__manifesto">
+      <p>A magazine is not a feed. It is a room. We make rooms for the music we love, the art we argue with, the clothes we live in, and the lives we are still becoming.</p>
+      <div class="footer__pillars">
+        <div class="footer__pillar"><div class="pn">01</div><h3>Music</h3><p>The pulse — what we play, who we listen to, the records we return to.</p></div>
+        <div class="footer__pillar"><div class="pn">02</div><h3>Art</h3><p>The argument — paintings, sculpture, ceramics, and the studios behind them.</p></div>
+        <div class="footer__pillar"><div class="pn">03</div><h3>Fashion</h3><p>The silhouette — designers, editorials, and the way we dress for our own lives.</p></div>
+        <div class="footer__pillar"><div class="pn">04</div><h3>Lifestyle</h3><p>The practice — travel, food, books, and the slow furniture of meaning.</p></div>
+      </div>
+    </div>
+    <div class="footer__hr"></div>
+    <div class="footer__cols">
+      <div>
+        <div class="footer__col-lbl">The Magazine</div>
+        <div class="footer__wordmark-sm">WOTKNOT</div>
+        <p class="footer__blurb">A celebration of the four pillars that shape culture and inspire everyday living: Music, Art, Fashion, Lifestyle.</p>
+      </div>
+      <div>
+        <div class="footer__col-lbl">Section</div>
+        <ul>
+          <li><a href="#featuring">Music</a></li>
+          <li><a href="#featuring">Art</a></li>
+          <li><a href="#featuring">Fashion</a></li>
+          <li><a href="#featuring">Lifestyle</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-lbl">Pages</div>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms &amp; Conditions</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-lbl">Follow</div>
+        <ul>
+          <li><a href="https://instagram.com/wotknotmag" target="_blank" rel="noopener">Instagram ↗</a></li>
+          <li><a href="https://youtube.com/@wotknotmag" target="_blank" rel="noopener">YouTube ↗</a></li>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">Spotify</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© WOTKNOT MAGAZINE</div>
+      <div class="c">Printed Quietly · Lagos / London / Houston</div>
+      <div class="r">Issue 07 · MMXXVI</div>
+    </div>
+    <div class="footer__big" aria-hidden="true">WOTKNOT</div>
+  </div>
+</footer>
+
+</main>
+
+<script>
+(()=>{
+'use strict';
+const rm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+const touch=window.matchMedia('(hover:none),(pointer:coarse)').matches;
+const mob=()=>window.innerWidth<=700;
+
+/* cursor */
+const cur=document.getElementById('cur'),cr=document.getElementById('cring');
+let cx=0,cy=0,tx=0,ty=0,rx=0,ry=0;
+if(!touch){
+  window.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY});
+  window.addEventListener('mouseleave',()=>cur.style.opacity='0');
+  window.addEventListener('mouseenter',()=>cur.style.opacity='1');
+  document.querySelectorAll('[data-hover]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('big'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+  });
+  const lerp=(a,b,n)=>a+(b-a)*n;
+  function cl(){cx=lerp(cx,tx,.55);cy=lerp(cy,ty,.55);rx=lerp(rx,tx,.18);ry=lerp(ry,ty,.18);cur.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`;cr.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(cl)}
+  cl();
+}
+
+/* loader */
+const loader=document.getElementById('loader'),lnum=document.getElementById('lnum'),lbar=document.getElementById('lbar'),lstatus=document.getElementById('lstatus');
+const stats=['Composing…','Inking type…','Tuning Side A…','Pressing Issue 07…'];
+function runLoader(){
+  return new Promise(res=>{
+    if(rm){lnum.textContent='100';lbar.style.width='100%';loader.style.opacity='0';setTimeout(()=>{loader.style.display='none';res()},200);return}
+    let n=0,si=0;
+    const t=()=>{
+      n+=Math.max(1,Math.round((100-n)*.07)+Math.random()*3);if(n>=100)n=100;
+      lnum.textContent=String(n).padStart(2,'0');lbar.style.width=n+'%';
+      if(n%22<4&&si<stats.length-1){si++;lstatus.textContent=stats[si]}
+      if(n<100)setTimeout(t,55+Math.random()*50);
+      else{lstatus.textContent='Welcome to Issue 07.';setTimeout(()=>{loader.style.transition='opacity .7s cubic-bezier(.77,0,.18,1),transform .8s cubic-bezier(.77,0,.18,1)';loader.style.opacity='0';loader.style.transform='translateY(-2%)';setTimeout(()=>{loader.style.display='none';res()},650)},300)}
+    };t();
+  });
+}
+
+/* hero scroll morph: WOTKNOT zooms into logo */
+const hwot=document.getElementById('hwot');
+const navlogo=document.getElementById('navlogo');
+const hud=document.getElementById('hud');
+
+function heroScroll(){
+  const hero=document.getElementById('hero');
+  const hh=hero?hero.offsetHeight:window.innerHeight;
+  const sy=window.scrollY;
+  const p=Math.min(sy/(hh*.55),1);
+
+  if(hwot){
+    const s=1-p*.9;
+    hwot.style.transform=`scale(${Math.max(s,.06)})`;
+    hwot.style.opacity=Math.max(0,1-p*1.4);
+  }
+  if(p>.5){navlogo.classList.add('show')}else{navlogo.classList.remove('show')}
+}
+window.addEventListener('scroll',heroScroll,{passive:true});
+
+/* hamburger */
+const ham=document.getElementById('ham');
+const moverlay=document.getElementById('moverlay');
+const moverlayMob=document.getElementById('moverlay-mob');
+let menuOpen=false;
+
+function openMenu(){
+  menuOpen=true;ham.classList.add('open');ham.setAttribute('aria-expanded','true');
+  if(mob()){moverlayMob.classList.add('open');moverlayMob.setAttribute('aria-hidden','false')}
+  else{moverlay.classList.add('open');moverlay.setAttribute('aria-hidden','false')}
+  document.body.style.overflow='hidden';
+}
+function closeMenu(){
+  menuOpen=false;ham.classList.remove('open');ham.setAttribute('aria-expanded','false');
+  moverlay.classList.remove('open');moverlay.setAttribute('aria-hidden','true');
+  moverlayMob.classList.remove('open');moverlayMob.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+ham.addEventListener('click',()=>menuOpen?closeMenu():openMenu());
+moverlay.addEventListener('click',e=>{if(e.target===moverlay)closeMenu()});
+document.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',closeMenu));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menuOpen)closeMenu()});
+
+/* hud section observer */
+const secs=document.querySelectorAll('[data-sec]');
+const hbtns=document.querySelectorAll('.hud__item');
+const sio=new IntersectionObserver(entries=>{
+  let best=null,br=0;
+  entries.forEach(e=>{if(e.intersectionRatio>br){br=e.intersectionRatio;best=e.target}});
+  if(best&&br>.3)hbtns.forEach(b=>b.classList.toggle('active',b.dataset.jump===best.id));
+},{threshold:[.3,.5,.7]});
+secs.forEach(s=>sio.observe(s));
+hbtns.forEach(b=>b.addEventListener('click',()=>{const t=document.getElementById(b.dataset.jump);if(t)t.scrollIntoView({behavior:rm?'auto':'smooth'})}));
+
+/* featuring animation */
+const featAnims=document.querySelectorAll('.feat-anim');
+const fio=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(!entry.isIntersecting||entry.target.dataset.done)return;
+    const el=entry.target;
+    el.dataset.done='1';
+    const stagger=parseInt(el.dataset.stagger||0)*120;
+    if(rm){el.style.opacity='1';el.style.transform='none';return}
+    setTimeout(()=>{el.classList.add('revealed')},stagger);
+    fio.unobserve(el);
+  });
+},{threshold:.15,rootMargin:'0px 0px -5% 0px'});
+featAnims.forEach(el=>fio.observe(el));
+
+/* generic fade-in */
+const fels=document.querySelectorAll('.fi');
+fels.forEach(el=>el.style.opacity='0');
+const gio=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(!entry.isIntersecting||entry.target.dataset.fi)return;
+    entry.target.dataset.fi='1';
+    if(rm){entry.target.style.opacity='1';entry.target.style.transform='none';return}
+    entry.target.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)'}],{duration:800,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});
+    entry.target.style.opacity='1';
+    gio.unobserve(entry.target);
+  });
+},{threshold:.2});
+fels.forEach(el=>gio.observe(el));
+
+/* shop items */
+document.querySelectorAll('.shop__item').forEach((el,i)=>{
+  el.style.opacity='0';el.style.transform='translateY(36px)';
+  const io2=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting||e.target.dataset.si)return;
+      e.target.dataset.si='1';
+      if(rm){e.target.style.opacity='1';e.target.style.transform='none';return}
+      setTimeout(()=>{
+        e.target.animate([{opacity:0,transform:'translateY(36px)'},{opacity:1,transform:'translateY(0)'}],{duration:750,easing:'cubic-bezier(.34,1.56,.64,1)',fill:'forwards'});
+        e.target.style.opacity='1';
+      },i*100);
+      io2.unobserve(e.target);
+    });
+  },{threshold:.2});
+  io2.observe(el);
+});
+
+runLoader().then(()=>{heroScroll()});
+})();
+</script>
+</body>
+</html>
