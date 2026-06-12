@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>WOTKNOT · Issue 07</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET ───────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#050507;color:#f4efe6;font-family:'Montserrat',sans-serif;font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{scroll-behavior:auto}
+body{cursor:none}
+@media(hover:none),(pointer:coarse){body{cursor:auto}}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+::selection{background:#e05c2a;color:#050507}
+
+/* ─── GRAIN ──────────────────────────────────── */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.12;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:200px;animation:grain .8s steps(5) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,3%)}80%{transform:translate(3%,1%)}100%{transform:translate(0,0)}}
+
+/* ─── CURSOR ─────────────────────────────────── */
+.cursor{position:fixed;top:0;left:0;width:12px;height:12px;border-radius:50%;background:#f4efe6;pointer-events:none;z-index:10000;mix-blend-mode:difference;transform:translate(-50%,-50%);will-change:transform;transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1)}
+.cursor::after{content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#050507;opacity:0;transition:opacity .2s ease;white-space:nowrap}
+.cursor.big{width:88px;height:88px}
+.cursor.big::after{opacity:1}
+.cursor-ring{position:fixed;top:0;left:0;width:42px;height:42px;border:1px solid rgba(244,239,230,.35);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;will-change:transform}
+@media(hover:none),(pointer:coarse){.cursor,.cursor-ring{display:none}}
+
+/* ─── LOADER ─────────────────────────────────── */
+.loader{position:fixed;inset:0;background:#050507;z-index:10001;display:grid;grid-template-rows:1fr auto 1fr;padding:clamp(1.5rem,3vw,2.5rem)}
+.loader__top{display:flex;justify-content:space-between;align-items:flex-start}
+.loader__mark{font-family:'Bodoni Moda',serif;font-size:clamp(1rem,1.5vw,1.35rem);letter-spacing:.04em;font-style:italic}
+.loader__meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.45);text-align:right;line-height:1.8}
+.loader__center{display:flex;align-items:center;justify-content:center;gap:clamp(1rem,3vw,3rem)}
+.loader__num{font-family:'Bodoni Moda',serif;font-size:clamp(5rem,14vw,12rem);font-style:italic;letter-spacing:-.04em;line-height:1}
+.loader__bar{width:clamp(140px,22vw,320px);height:1px;background:rgba(244,239,230,.12);position:relative;overflow:hidden}
+.loader__bar i{position:absolute;left:0;top:0;bottom:0;background:#f4efe6;width:0;transition:width .5s cubic-bezier(.77,0,.18,1)}
+.loader__bottom{display:flex;justify-content:space-between;align-items:flex-end;font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.4)}
+
+/* ─── NAV ────────────────────────────────────── */
+/* Fixed header: logo box left, menu box + hamburger right — exactly as screenshot */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:stretch;
+  pointer-events:none;
+}
+
+/* Logo box — top-left dark panel */
+.nav__logo{
+  pointer-events:auto;
+  display:flex;align-items:center;
+  background:rgba(10,10,14,.9);
+  border-right:1px solid rgba(244,239,230,.08);
+  border-bottom:1px solid rgba(244,239,230,.08);
+  padding:clamp(.8rem,1.8vw,1.25rem) clamp(1rem,2.2vw,1.75rem);
+  gap:.4rem;
+  opacity:0;transition:opacity .5s ease;
+  mix-blend-mode:normal;
+}
+.nav__logo.show{opacity:1}
+.nav__logo-text{
+  font-family:'Montserrat',sans-serif;font-weight:600;
+  font-size:clamp(.8rem,.95vw,.95rem);letter-spacing:.08em;
+  color:#f4efe6;
+}
+.nav__logo-text sup{
+  font-family:'JetBrains Mono',monospace;font-size:.48rem;
+  letter-spacing:.18em;text-transform:uppercase;opacity:.55;
+}
+
+/* Right side: menu links + hamburger in one dark panel */
+.nav__right{
+  pointer-events:auto;
+  display:flex;align-items:stretch;
+  background:rgba(10,10,14,.9);
+  border-left:1px solid rgba(244,239,230,.08);
+  border-bottom:1px solid rgba(244,239,230,.08);
+}
+.nav__links{
+  display:flex;align-items:center;gap:0;
+  padding:0 clamp(.8rem,2vw,1.5rem);
+}
+.nav__links a{
+  font-family:'Montserrat',sans-serif;font-weight:500;
+  font-size:.6rem;text-transform:uppercase;letter-spacing:.26em;
+  color:#f4efe6;padding:.2rem .6rem;
+  position:relative;transition:opacity .2s ease;
+}
+.nav__links a::after{
+  content:"";position:absolute;left:.6rem;right:.6rem;bottom:-.1rem;
+  height:1px;background:#f4efe6;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .4s cubic-bezier(.16,1,.3,1);
+}
+.nav__links a:hover::after{transform:scaleX(1)}
+
+/* ─── DOT HAMBURGER ──────────────────────────── */
+/* A circle button with 9 dots — matches your reference images exactly */
+.nav__ham{
+  all:unset;
+  cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  width:clamp(50px,6vw,64px);
+  border-left:1px solid rgba(244,239,230,.08);
+  flex-shrink:0;
+}
+.nav__ham:hover{background:rgba(244,239,230,.05)}
+/* The 9-dot circle — reference image shows a circle outline with 3×3 dots inside */
+.dot-wrap{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(244,239,230,.45);
+  display:flex;align-items:center;justify-content:center;
+}
+.dot-grid{
+  display:grid;grid-template-columns:repeat(3,4px);
+  grid-template-rows:repeat(3,4px);gap:3px;
+}
+.dot-grid span{
+  width:4px;height:4px;border-radius:50%;background:#f4efe6;display:block;
+  transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;
+}
+/* OPEN state — arrow pointing top-right: (1,1,1)(0,1,1)(1,0,1) */
+/* dots: 1-9 left-to-right, top-to-bottom */
+.nav__ham.open .dot-grid span:nth-child(4){opacity:0}  /* r2c1 hide */
+.nav__ham.open .dot-grid span:nth-child(8){opacity:0}  /* r3c2 hide */
+.nav__ham.open .dot-grid span:nth-child(1){transform:translate(5px,-5px)}
+.nav__ham.open .dot-grid span:nth-child(2){transform:translate(5px,-5px)}
+.nav__ham.open .dot-grid span:nth-child(3){transform:translate(5px,-5px)}
+.nav__ham.open .dot-grid span:nth-child(5){transform:translate(5px,-5px)}
+.nav__ham.open .dot-grid span:nth-child(7){transform:translate(-3px,3px)}
+.nav__ham.open .dot-grid span:nth-child(9){transform:translate(3px,3px)}
+
+@media(max-width:760px){
+  .nav__links{display:none}
+  /* On mobile the circle sits standalone */
+  .nav__right{background:transparent;border:none;padding:clamp(.8rem,2vw,1.2rem)}
+  .nav__ham{border:none;width:auto}
+  .dot-wrap{width:40px;height:40px}
+}
+
+/* ─── MENU OVERLAYS ──────────────────────────── */
+.menu-desk{
+  position:fixed;inset:0;z-index:190;
+  background:rgba(5,5,7,.97);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  display:flex;align-items:center;padding:clamp(4rem,10vw,8rem) clamp(3rem,8vw,8rem);
+  opacity:0;pointer-events:none;
+  transition:opacity .45s ease;
+}
+.menu-desk.open{opacity:1;pointer-events:auto}
+.menu-desk__links{display:flex;flex-direction:column;gap:.1rem;margin-right:clamp(4rem,10vw,10rem)}
+.menu-desk__links a{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:clamp(2.8rem,6.5vw,6rem);letter-spacing:-.025em;line-height:1.05;
+  opacity:0;transform:translateY(28px);
+  transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1),color .2s;
+}
+.menu-desk__links a:hover{color:#e05c2a}
+.menu-desk.open .menu-desk__links a{opacity:1;transform:translateY(0)}
+.menu-desk.open .menu-desk__links a:nth-child(1){transition-delay:.04s}
+.menu-desk.open .menu-desk__links a:nth-child(2){transition-delay:.09s}
+.menu-desk.open .menu-desk__links a:nth-child(3){transition-delay:.14s}
+.menu-desk.open .menu-desk__links a:nth-child(4){transition-delay:.19s}
+.menu-desk.open .menu-desk__links a:nth-child(5){transition-delay:.24s}
+.menu-desk__sub{opacity:0;transition:opacity .5s ease .3s;display:flex;flex-direction:column;gap:2rem}
+.menu-desk.open .menu-desk__sub{opacity:1}
+.menu-desk__sub h5{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.4);font-weight:400;margin-bottom:.5rem}
+.menu-desk__sub ul{list-style:none;display:flex;flex-direction:column;gap:.3rem}
+.menu-desk__sub ul a{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:300;color:rgba(244,239,230,.65);transition:color .2s}
+.menu-desk__sub ul a:hover{color:#f4efe6}
+
+.menu-mob{
+  position:fixed;top:0;left:0;right:0;z-index:190;
+  background:#050507;
+  padding:4.5rem 2rem 2.5rem;
+  transform:translateY(-110%);
+  transition:transform .65s cubic-bezier(.34,1.56,.64,1);
+  border-bottom:1px solid rgba(244,239,230,.08);
+}
+.menu-mob.open{transform:translateY(0)}
+.menu-mob__links{display:flex;flex-direction:column}
+.menu-mob__links a{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:clamp(1.8rem,6vw,2.6rem);letter-spacing:-.01em;
+  padding:.45rem 0;border-bottom:1px solid rgba(244,239,230,.07);
+  opacity:0;transform:translateY(14px);
+  transition:opacity .5s ease,transform .5s ease,color .2s;
+}
+.menu-mob.open .menu-mob__links a{opacity:1;transform:translateY(0)}
+.menu-mob.open .menu-mob__links a:nth-child(1){transition-delay:.09s}
+.menu-mob.open .menu-mob__links a:nth-child(2){transition-delay:.14s}
+.menu-mob.open .menu-mob__links a:nth-child(3){transition-delay:.19s}
+.menu-mob.open .menu-mob__links a:nth-child(4){transition-delay:.24s}
+.menu-mob.open .menu-mob__links a:nth-child(5){transition-delay:.29s}
+.menu-mob__links a:hover{color:#e05c2a}
+.menu-mob__socials{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:1.75rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:rgba(244,239,230,.4)}
+.menu-mob__sublabel{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.3);margin-top:1.5rem;margin-bottom:.4rem}
+.menu-mob__sub{display:flex;align-items:center;gap:1rem;border-top:1px solid rgba(244,239,230,.08);padding-top:.8rem}
+.menu-mob__sub input{all:unset;flex:1;font-family:'Montserrat',sans-serif;font-size:.9rem;color:#f4efe6;padding:.4rem 0}
+.menu-mob__sub input::placeholder{color:rgba(244,239,230,.28)}
+.menu-mob__sub button{all:unset;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:#e05c2a;cursor:none;white-space:nowrap}
+@media(min-width:761px){.menu-mob{display:none}}
+@media(max-width:760px){.menu-desk{display:none}}
+
+/* ─── HUD — right side section nav ──────────── */
+/* Matches the right panel in your screenshot exactly */
+.hud{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);
+  z-index:150;
+  background:rgba(10,10,14,.8);
+  border:1px solid rgba(244,239,230,.07);
+  border-right:none;
+  padding:1.6rem 1.1rem 1.6rem 1.25rem;
+  display:flex;flex-direction:column;gap:16px;
+}
+.hud__btn{
+  all:unset;cursor:none;
+  display:flex;align-items:center;gap:12px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.57rem;text-transform:uppercase;letter-spacing:.22em;
+  color:rgba(244,239,230,.32);
+  transition:color .3s ease;
+  white-space:nowrap;
+}
+.hud__pip{display:block;width:24px;height:1px;background:currentColor;flex-shrink:0;transition:width .45s cubic-bezier(.16,1,.3,1)}
+.hud__btn.active{color:#f4efe6}
+.hud__btn.active .hud__pip{width:44px}
+@media(max-width:1024px){.hud{display:none}}
+
+/* ─── SECTION 01 · HERO ──────────────────────── */
+/* Pure black, WOTKNOT massive bottom-left light weight, panels bottom */
+.hero{
+  position:relative;
+  height:100vh;min-height:600px;
+  background:#050507;
+  overflow:hidden;
+}
+
+/* THE WOTKNOT WORDMARK — exact match: ultra-thin, left-aligned, large */
+.hero__wot{
+  position:absolute;
+  /* sits starting at left edge, vertically centred-low */
+  left:clamp(1rem,3.5vw,3.5rem);
+  bottom:clamp(9rem,24vh,22rem);
+  font-family:'Montserrat',sans-serif;
+  font-weight:300;
+  font-size:clamp(5rem,19.5vw,21rem);
+  line-height:.85;letter-spacing:-.025em;
+  color:#f4efe6;
+  white-space:nowrap;
+  user-select:none;pointer-events:none;
+  transform-origin:left bottom;
+  will-change:transform,opacity,font-size;
+  z-index:2;
+}
+
+/* Bottom content row — FEATURING box left, QUOTE box centre-right */
+.hero__bar{
+  position:absolute;bottom:0;left:0;right:0;
+  display:grid;
+  /* col 1 = featuring box, col 2 = spacer, col 3 = quote box, col 4 = hud space */
+  grid-template-columns:auto 1fr auto clamp(160px,16vw,180px);
+  align-items:end;z-index:5;
+}
+
+/* Featuring box — dark tile, bottom-left, exact match */
+.hero__feat{
+  background:rgba(14,14,20,.85);
+  border:1px solid rgba(244,239,230,.08);
+  border-bottom:none;border-left:none;
+  padding:clamp(.9rem,1.8vw,1.3rem) clamp(1.1rem,2.5vw,1.9rem);
+}
+.hero__feat-lbl{
+  font-family:'JetBrains Mono',monospace;font-size:.57rem;
+  text-transform:uppercase;letter-spacing:.3em;
+  color:rgba(244,239,230,.38);margin-bottom:.5rem;
+}
+.hero__feat-names{
+  font-family:'Montserrat',sans-serif;font-weight:300;font-style:italic;
+  font-size:clamp(.8rem,.95vw,.92rem);letter-spacing:.03em;line-height:1.7;
+  color:#f4efe6;
+}
+
+/* Quote box — centre-right, exact match */
+.hero__quote{
+  background:rgba(14,14,20,.78);
+  border:1px solid rgba(244,239,230,.07);
+  border-bottom:none;
+  padding:clamp(1rem,2vw,1.6rem) clamp(1.2rem,2.5vw,2rem);
+  max-width:420px;
+}
+.hero__quote blockquote{
+  font-family:'Bodoni Moda',serif;font-style:italic;
+  font-size:clamp(.92rem,1.15vw,1.1rem);line-height:1.5;
+  color:#f4efe6;margin-bottom:.75rem;
+}
+.hero__know{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:'JetBrains Mono',monospace;font-size:.57rem;
+  text-transform:uppercase;letter-spacing:.2em;
+  color:rgba(244,239,230,.4);transition:color .2s;
+}
+.hero__know:hover{color:#f4efe6}
+.hero__know svg{width:10px;height:10px;flex-shrink:0}
+
+/* Empty right column so quote doesn't collide with HUD */
+.hero__hud-space{/* intentionally empty */}
+
+@media(max-width:900px){
+  .hero__bar{grid-template-columns:auto 1fr auto;grid-template-rows:auto auto}
+  .hero__hud-space{display:none}
+  .hero__wot{font-size:clamp(3.5rem,14vw,8rem);bottom:clamp(8rem,20vh,14rem)}
+}
+@media(max-width:600px){
+  .hero__bar{grid-template-columns:1fr}
+  .hero__quote{border-right:none}
+  .hero__wot{font-size:clamp(2.8rem,13vw,5.5rem);bottom:clamp(10rem,22vh,15rem)}
+}
+
+/* ─── SECTION 02 · FEATURING ─────────────────── */
+/* Exact match to your reference: scattered images + large light names */
+.featuring{
+  background:#050507;
+  padding:clamp(5rem,9vw,7rem) clamp(1.5rem,5vw,5rem);
+  min-height:100vh;
+  position:relative;overflow:hidden;
+}
+.featuring__eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  text-transform:uppercase;letter-spacing:.3em;
+  color:rgba(244,239,230,.3);margin-bottom:clamp(3rem,7vh,6rem);
+}
+
+/* The editorial layout: positions match your reference screenshot exactly.
+   Left half: tall image far-left + names stacked mid-left, then small image below
+   Right half: 3 images scattered across top row, names bottom-right */
+.feat-layout{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 clamp(2rem,5vw,5rem);
+  min-height:80vh;
+}
+
+/* ── LEFT COLUMN ── */
+.feat-left{position:relative}
+
+/* Group A: tall image + name text side by side */
+.feat-groupA{
+  display:flex;gap:clamp(1.5rem,3vw,3rem);align-items:flex-start;
+  margin-bottom:clamp(2rem,4vw,3.5rem);
+}
+/* Group B: smaller image offset to right + no name (names already shown in A) */
+.feat-groupB{
+  display:flex;justify-content:flex-end;
+  padding-right:clamp(1rem,3vw,3rem);
+}
+
+/* ── RIGHT COLUMN ── */
+.feat-right{position:relative;padding-top:clamp(0px,3vh,3rem)}
+
+/* Top row: 3 images scattered, staggered heights */
+.feat-toprow{
+  display:flex;gap:clamp(1rem,2.2vw,2rem);align-items:flex-start;
+  margin-bottom:clamp(2rem,4vw,3.5rem);
+}
+/* Bottom row: 1 image left + names right */
+.feat-botrow{
+  display:flex;gap:clamp(1.5rem,3vw,3rem);align-items:flex-start;
+}
+
+/* Image tiles — light grey/white boxes that go B&W → colour */
+.feat-img{
+  background:#d0cfc8;
+  overflow:hidden;border-radius:1px;
+  position:relative;flex-shrink:0;cursor:none;
+}
+.feat-img__bw,.feat-img__col{
+  position:absolute;inset:0;width:100%;height:100%;
+  background-size:cover;background-position:center;
+}
+.feat-img__bw{filter:grayscale(100%) contrast(1.05);transition:opacity .65s cubic-bezier(.16,1,.3,1)}
+.feat-img__col{opacity:0;transition:opacity .65s cubic-bezier(.16,1,.3,1)}
+.feat-img:hover .feat-img__bw{opacity:0}
+.feat-img:hover .feat-img__col{opacity:1}
+
+/* Size variants based on reference */
+.feat-img--a{width:clamp(130px,14vw,200px);aspect-ratio:3/4.8}  /* tall left */
+.feat-img--b{width:clamp(150px,16vw,230px);aspect-ratio:1/1.15} /* medium square, below name */
+.feat-img--c{width:clamp(115px,12vw,175px);aspect-ratio:3/3.5}  /* right top small */
+.feat-img--d{width:clamp(145px,15vw,215px);aspect-ratio:1/1.1}  /* right top medium */
+.feat-img--e{width:clamp(160px,17vw,240px);aspect-ratio:3/4}    /* right top tall */
+.feat-img--f{width:clamp(130px,14vw,200px);aspect-ratio:3/4.3}  /* right bottom */
+
+/* Name typography — light weight large stacked lines, exact match */
+.feat-name{
+  font-family:'Montserrat',sans-serif;font-weight:300;
+  font-size:clamp(2rem,3.8vw,3.5rem);
+  line-height:1.02;letter-spacing:-.015em;
+  color:#f4efe6;
+  transition:color .3s ease;
+}
+.feat-name.sm{font-size:clamp(1.6rem,3vw,2.8rem)}
+/* Group hover → name goes orange */
+.feat-groupA:hover .feat-name,
+.feat-botrow:hover .feat-name{color:#e05c2a}
+
+/* ── ANIMATION CLASSES ── */
+/* Items start invisible, then revealed by IntersectionObserver with stagger */
+.fa{opacity:0;will-change:transform,opacity}
+.fa-r{transform:translateX(72px)}  /* enter from right */
+.fa-l{transform:translateX(-72px)} /* enter from left */
+.fa-u{transform:translateY(56px)}  /* enter from below (images) */
+.fa.in{opacity:1;transform:translate(0,0);transition:opacity .85s cubic-bezier(.34,1.56,.64,1),transform .85s cubic-bezier(.34,1.56,.64,1)}
+
+@media(max-width:900px){
+  .feat-layout{grid-template-columns:1fr;gap:3rem}
+  .feat-name{font-size:clamp(1.5rem,5vw,2.4rem)}
+  .feat-img--a{width:clamp(100px,22vw,150px)}
+  .feat-img--b{width:clamp(110px,24vw,165px)}
+  .feat-img--d{width:clamp(120px,26vw,175px)}
+  .feat-img--e{width:clamp(130px,28vw,190px)}
+}
+
+/* ─── SECTION 03 · SHOP ──────────────────────── */
+.shop{
+  background:#050507;
+  padding:clamp(5rem,9vw,7rem) clamp(1.5rem,5vw,5rem);
+  border-top:1px solid rgba(244,239,230,.07);
+}
+.shop__head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:1px solid rgba(244,239,230,.08);
+  padding-bottom:1.25rem;margin-bottom:clamp(2.5rem,5vw,4rem);
+  gap:2rem;flex-wrap:wrap;
+}
+.shop__lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.28em;color:rgba(244,239,230,.32);margin-bottom:.4rem}
+.shop__h{font-family:'Montserrat',sans-serif;font-weight:300;font-size:clamp(2.2rem,5.5vw,4.8rem);letter-spacing:-.03em;line-height:.92}
+.shop__meta{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.32)}
+.shop__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1.5rem,3vw,2.8rem);margin-bottom:3rem}
+.shop__item{cursor:none}
+.shop__cover{
+  position:relative;aspect-ratio:3/4;overflow:hidden;
+  background:#111;border-radius:1px;
+  box-shadow:0 24px 50px -16px rgba(0,0,0,.7);
+  margin-bottom:.75rem;
+}
+.shop__cover .cbg{
+  position:absolute;inset:-6%;background-size:cover;background-position:center;
+  filter:grayscale(15%) contrast(1.04);
+  transition:transform .7s cubic-bezier(.16,1,.3,1),filter .5s ease;
+  will-change:transform;
+}
+.shop__cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.6) 100%)}
+.shop__cover .inum{position:absolute;top:.8rem;left:.9rem;z-index:1;font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(1.1rem,1.6vw,1.5rem);letter-spacing:-.03em}
+.shop__cover .iname{position:absolute;bottom:.8rem;left:.9rem;right:.9rem;z-index:1;font-family:'Bodoni Moda',serif;font-size:clamp(.9rem,1.2vw,1.15rem);line-height:1.1}
+.shop__item:hover .shop__cover .cbg{transform:scale(1.05);filter:grayscale(0%) contrast(1.06)}
+.shop__row{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;padding-bottom:.7rem;border-bottom:1px solid rgba(244,239,230,.07)}
+.shop__row .st{font-family:'Bodoni Moda',serif;font-style:italic;font-size:clamp(.88rem,1.05vw,1.05rem);color:#f4efe6}
+.shop__row .si{font-family:'JetBrains Mono',monospace;font-size:.57rem;text-transform:uppercase;letter-spacing:.16em;color:rgba(244,239,230,.35);margin-top:.2rem}
+.shop__row .sp{font-family:'Montserrat',sans-serif;font-weight:600;font-size:clamp(.88rem,.95vw,.95rem);white-space:nowrap}
+.shop__row .sp.sold{color:rgba(244,239,230,.3);text-decoration:line-through}
+.shop__foot{display:flex;justify-content:center}
+@media(max-width:760px){.shop__grid{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.shop__grid{grid-template-columns:1fr}}
+
+/* ─── BTN ────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:.7rem;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  text-transform:uppercase;letter-spacing:.24em;
+  border:1px solid rgba(244,239,230,.2);padding:.85rem 2rem;
+  position:relative;overflow:hidden;cursor:none;
+  transition:border-color .3s ease;
+}
+.btn::before{content:"";position:absolute;inset:0;background:#f4efe6;transform:translateY(101%);transition:transform .45s cubic-bezier(.77,0,.18,1)}
+.btn:hover{border-color:#f4efe6;color:#050507}
+.btn:hover::before{transform:translateY(0)}
+.btn span,.btn .arr{position:relative;z-index:1}
+.btn .arr{transition:transform .35s ease}
+.btn:hover .arr{transform:translateX(4px)}
+
+/* ─── FOOTER ─────────────────────────────────── */
+.footer{
+  background:#050507;
+  border-top:1px solid rgba(244,239,230,.08);
+  padding:clamp(4.5rem,9vw,7rem) clamp(1.5rem,5vw,5rem) clamp(1.5rem,3vw,2.5rem);
+}
+.footer__manifesto{max-width:840px;margin-bottom:clamp(3rem,6vw,5rem)}
+.footer__manifesto p{
+  font-family:'Bodoni Moda',serif;font-style:italic;
+  font-size:clamp(1.1rem,1.9vw,1.7rem);line-height:1.45;color:#f4efe6;
+}
+.footer__pillars{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border-top:1px solid rgba(244,239,230,.08);margin-top:2rem;
+}
+.footer__pill{padding:1.2rem 1rem 1.2rem 0;border-right:1px solid rgba(244,239,230,.08)}
+.footer__pill:last-child{border-right:none}
+.footer__pill .pn{font-family:'JetBrains Mono',monospace;font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:#e05c2a;margin-bottom:.35rem}
+.footer__pill h3{font-family:'Montserrat',sans-serif;font-weight:500;font-size:clamp(.88rem,1.15vw,1.1rem);letter-spacing:.02em;margin-bottom:.3rem}
+.footer__pill p{font-family:'Inter',sans-serif;font-size:.72rem;color:rgba(244,239,230,.42);line-height:1.5}
+.footer__hr{height:1px;background:rgba(244,239,230,.08);margin:clamp(2rem,4vw,3rem) 0}
+.footer__cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;margin-bottom:clamp(2rem,4vw,3rem)}
+.footer__collbl{font-family:'JetBrains Mono',monospace;font-size:.57rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.32);font-weight:400;margin-bottom:.8rem}
+.footer__wm{font-family:'Montserrat',sans-serif;font-weight:800;font-size:clamp(1rem,1.8vw,1.5rem);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.5rem}
+.footer__blurb{font-family:'Bodoni Moda',serif;font-style:italic;font-size:clamp(.88rem,.95vw,.98rem);line-height:1.55;color:rgba(244,239,230,.5);max-width:30ch}
+.footer__cols ul{list-style:none}
+.footer__cols ul li{margin-bottom:.35rem}
+.footer__cols ul a{font-family:'Inter',sans-serif;font-size:.85rem;color:rgba(244,239,230,.52);transition:color .2s}
+.footer__cols ul a:hover{color:#f4efe6}
+.footer__bot{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-top:1.5rem;border-top:1px solid rgba(244,239,230,.07);font-family:'JetBrains Mono',monospace;font-size:.57rem;text-transform:uppercase;letter-spacing:.22em;color:rgba(244,239,230,.28)}
+.footer__bot .c{text-align:center}
+.footer__bot .r{text-align:right}
+.footer__big{margin-top:3rem;font-family:'Montserrat',sans-serif;font-weight:800;font-size:clamp(4rem,21vw,21rem);line-height:.84;letter-spacing:-.055em;text-align:center;background:linear-gradient(180deg,rgba(244,239,230,.16) 0%,transparent 100%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none}
+@media(max-width:900px){.footer__cols{grid-template-columns:1fr 1fr;gap:2rem}.footer__pillars{grid-template-columns:1fr 1fr}.footer__pill:nth-child(2){border-right:none}}
+@media(max-width:560px){.footer__cols{grid-template-columns:1fr}.footer__pillars{grid-template-columns:1fr}.footer__pill{border-right:none}.footer__bot{grid-template-columns:1fr;text-align:center}.footer__bot .c,.footer__bot .r{text-align:center}}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="js-cursor" data-cursor></div>
+<div class="cursor-ring" data-cursor-ring></div>
+
+<!-- ─── LOADER ───────────────────────────────── -->
+<div class="loader" id="js-loader">
+  <div class="loader__top">
+    <div class="loader__mark">Wotknot</div>
+    <div class="loader__meta">Issue 07 · Vol. III<br>Lagos / London / Houston</div>
+  </div>
+  <div class="loader__center">
+    <div class="loader__num" data-loader-num>00</div>
+    <div class="loader__bar"><i data-loader-bar></i></div>
+  </div>
+  <div class="loader__bottom">
+    <span>Loading dispatch</span>
+    <span data-loader-status>Composing typography…</span>
+    <span>06 · 06 · 26</span>
+  </div>
+</div>
+
+<!-- ─── NAV ──────────────────────────────────── -->
+<header class="nav" id="js-nav">
+  <a href="#hero" class="nav__logo" id="js-logo" aria-label="Wotknot home">
+    <span class="nav__logo-text">Wotknot<sup>® mag</sup></span>
+  </a>
+
+  <div class="nav__right">
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#featuring">Music</a>
+      <a href="#featuring">Art</a>
+      <a href="#featuring">Fashion</a>
+      <a href="#featuring">Lifestyle</a>
+      <a href="#shop">Archive</a>
+    </nav>
+    <button class="nav__ham" id="js-ham" aria-label="Toggle menu" aria-expanded="false">
+      <div class="dot-wrap">
+        <div class="dot-grid">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </button>
+  </div>
+</header>
+
+<!-- ─── HUD ──────────────────────────────────── -->
+<aside class="hud" id="js-hud" aria-label="Section navigation">
+  <button class="hud__btn active" data-jump="hero"><span class="hud__pip"></span>00 · Cover</button>
+  <button class="hud__btn" data-jump="featuring"><span class="hud__pip"></span>01 · Story</button>
+  <button class="hud__btn" data-jump="shop"><span class="hud__pip"></span>02 · Shop</button>
+  <button class="hud__btn" data-jump="footer"><span class="hud__pip"></span>03 · Manifesto</button>
+</aside>
+
+<!-- ─── DESKTOP MENU ──────────────────────────── -->
+<div class="menu-desk" id="js-mdest" aria-hidden="true" role="dialog" aria-label="Site menu">
+  <div class="menu-desk__links">
+    <a href="#hero"      data-mclose>Home</a>
+    <a href="#featuring" data-mclose>Featuring</a>
+    <a href="#shop"      data-mclose>Shop</a>
+    <a href="#footer"    data-mclose>About</a>
+    <a href="#footer"    data-mclose>Archive</a>
+  </div>
+  <div class="menu-desk__sub">
+    <div>
+      <h5>Sections</h5>
+      <ul>
+        <li><a href="#featuring" data-mclose>Music</a></li>
+        <li><a href="#featuring" data-mclose>Art</a></li>
+        <li><a href="#featuring" data-mclose>Fashion</a></li>
+        <li><a href="#featuring" data-mclose>Lifestyle</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Follow</h5>
+      <ul>
+        <li><a href="https://www.instagram.com/wotknotmag/" target="_blank" rel="noopener">Instagram ↗</a></li>
+        <li><a href="https://www.youtube.com/@wotknotmag" target="_blank" rel="noopener">YouTube ↗</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Spotify</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MOBILE MENU ───────────────────────────── -->
+<div class="menu-mob" id="js-mmob" aria-hidden="true">
+  <div class="menu-mob__links">
+    <a href="#hero"      data-mclose>Home</a>
+    <a href="#featuring" data-mclose>Featuring</a>
+    <a href="#shop"      data-mclose>Shop</a>
+    <a href="#footer"    data-mclose>About</a>
+    <a href="#footer"    data-mclose>Archive</a>
+  </div>
+  <div class="menu-mob__socials">
+    <a href="https://www.instagram.com/wotknotmag/" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.youtube.com/@wotknotmag" target="_blank" rel="noopener">YouTube</a>
+    <a href="#">TikTok</a>
+    <a href="#">Spotify</a>
+  </div>
+  <div class="menu-mob__sublabel">Subscribe</div>
+  <div class="menu-mob__sub">
+    <input type="email" placeholder="your@email.com" aria-label="Subscribe">
+    <button type="button">Subscribe →</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ════════════════════════════════════════════
+     SECTION 01 · HERO
+════════════════════════════════════════════ -->
+<section id="hero" class="hero" data-section>
+
+  <!-- Giant WOTKNOT wordmark — morphs into logo on scroll -->
+  <h1 class="hero__wot" id="js-wot">WOTKNOT</h1>
+
+  <!-- Bottom bar -->
+  <div class="hero__bar">
+
+    <!-- Featuring tile — bottom-left -->
+    <div class="hero__feat">
+      <div class="hero__feat-lbl">Featuring</div>
+      <div class="hero__feat-names">Aṣa · Tems · Skepta<br>Doja · Bree Runway</div>
+    </div>
+
+    <!-- Spacer -->
+    <div></div>
+
+    <!-- Quote tile -->
+    <div class="hero__quote">
+      <blockquote>"A quarterly study of the four pillars that shape culture and inspire everyday living."</blockquote>
+      <a href="#" class="hero__know">
+        Know more
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 10L10 2M4 2h6v6"/></svg>
+      </a>
+    </div>
+
+    <!-- HUD space column -->
+    <div class="hero__hud-space"></div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECTION 02 · FEATURING
+     Layout matches reference screenshot exactly:
+     Left: tall image + stacked names | small image below
+     Right: 3 scattered images top | 1 image + names bottom
+════════════════════════════════════════════ -->
+<section id="featuring" class="featuring" data-section>
+  <div class="featuring__eyebrow">Issue 07 · Featuring</div>
+
+  <div class="feat-layout">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div class="feat-left">
+
+      <!-- Group A: Tall image on far left + names beside it -->
+      <div class="feat-groupA fa fa-r" data-sd="0">
+        <div class="feat-img feat-img--a fa fa-u" data-sd="0">
+          <div class="feat-img__bw" style="background-image:url('https://images.unsplash.com/photo-1534294228306-bd54eb9a7ba8?w=600&q=80&auto=format&fit=crop')"></div>
+          <div class="feat-img__col" style="background-image:url('https://images.unsplash.com/photo-1534294228306-bd54eb9a7ba8?w=600&q=80&auto=format&fit=crop')"></div>
+        </div>
+        <div style="padding-top:.5rem">
+          <div class="feat-name">Emaxee<br>Manuel Oke<br>Farhan</div>
+        </div>
+      </div>
+
+      <!-- Group B: Smaller image, indented right -->
+      <div class="feat-groupB fa fa-r" data-sd="1">
+        <div class="feat-img feat-img--b fa fa-u" data-sd="2">
+          <div class="feat-img__bw" style="background-image:url('https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80&auto=format&fit=crop')"></div>
+          <div class="feat-img__col" style="background-image:url('https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=80&auto=format&fit=crop')"></div>
+        </div>
+      </div>
+
+    </div><!-- /feat-left -->
+
+    <!-- ── RIGHT COLUMN ── -->
+    <div class="feat-right">
+
+      <!-- Top row: 3 images at different heights -->
+      <div class="feat-toprow">
+        <!-- Image 1: starts lower -->
+        <div class="feat-img feat-img--c fa fa-l fa-u" data-sd="0" style="margin-top:clamp(2rem,5vh,5rem)">
+          <div class="feat-img__bw" style="background-image:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&q=80&auto=format&fit=crop')"></div>
+          <div class="feat-img__col" style="background-image:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&q=80&auto=format&fit=crop')"></div>
+        </div>
+        <!-- Image 2: starts at top -->
+        <div class="feat-img feat-img--d fa fa-l fa-u" data-sd="1">
+          <div class="feat-img__bw" style="background-image:url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80&auto=format&fit=crop')"></div>
+          <div class="feat-img__col" style="background-image:url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80&auto=format&fit=crop')"></div>
+        </div>
+        <!-- Image 3: partially cut off right -->
+        <div class="feat-img feat-img--e fa fa-l fa-u" data-sd="2" style="margin-top:clamp(-1rem,-2vh,-1.5rem)">
+          <div class="feat-img__bw" style="background-image:url('https://images.unsplash.com/photo-1527443224154-c4a573d5f5a6?w=500&q=80&auto=format&fit=crop')"></div>
+          <div class="feat-img__col" style="background-image:url('https://images.unsplash.com/photo-1527443224154-c4a573d5f5a6?w=500&q=80&auto=format&fit=crop')"></div>
+        </div>
+      </div>
+
+      <!-- Bottom row: image left + names right -->
+      <div class="feat-botrow fa fa-l" data-sd="3">
+        <div class="feat-img feat-img--f fa fa-u" data-sd="4">
+          <div class="feat-img__bw" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80&auto=format&fit=crop')"></div>
+          <div class="feat-img__col" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&q=80&auto=format&fit=crop')"></div>
+        </div>
+        <div style="padding-top:.5rem">
+          <div class="feat-name sm">Emaxee<br>Manuel Oke<br>Farhan</div>
+        </div>
+      </div>
+
+    </div><!-- /feat-right -->
+
+  </div><!-- /feat-layout -->
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECTION 03 · SHOP
+════════════════════════════════════════════ -->
+<section id="shop" class="shop" data-section>
+  <div class="shop__head">
+    <div>
+      <div class="shop__lbl">The Magazine · Past Issues</div>
+      <h2 class="shop__h">The Archive</h2>
+    </div>
+    <div class="shop__meta">Issues N°01—06</div>
+  </div>
+
+  <div class="shop__grid">
+    <a href="#" class="shop__item" data-hover="Buy">
+      <div class="shop__cover">
+        <div class="cbg" style="background-image:url('https://images.unsplash.com/photo-1488161628813-04466f6d6e87?w=800&q=85&auto=format&fit=crop')"></div>
+        <span class="inum">N°06</span><span class="iname">The Light Issue</span>
+      </div>
+      <div class="shop__row">
+        <div><div class="st">Spring · 2026</div><div class="si">128 pp · Italy</div></div>
+        <div class="sp">£18</div>
+      </div>
+    </a>
+    <a href="#" class="shop__item" data-hover="Buy">
+      <div class="shop__cover">
+        <div class="cbg" style="background-image:url('https://images.unsplash.com/photo-1492447166138-50c3889fccb1?w=800&q=85&auto=format&fit=crop')"></div>
+        <span class="inum">N°05</span><span class="iname">The Cities Issue</span>
+      </div>
+      <div class="shop__row">
+        <div><div class="st">Winter · 2025</div><div class="si">144 pp · Italy</div></div>
+        <div class="sp">£18</div>
+      </div>
+    </a>
+    <a href="#" class="shop__item" data-hover="Sold out">
+      <div class="shop__cover">
+        <div class="cbg" style="background-image:url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=85&auto=format&fit=crop')"></div>
+        <span class="inum">N°04</span><span class="iname">The Distance Issue</span>
+      </div>
+      <div class="shop__row">
+        <div><div class="st">Autumn · 2025</div><div class="si">112 pp · sold out</div></div>
+        <div class="sp sold">£18</div>
+      </div>
+    </a>
+  </div>
+  <div class="shop__foot">
+    <a href="#" class="btn" data-hover="View all"><span>See all issues</span><span class="arr">→</span></a>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SECTION 04 · FOOTER
+════════════════════════════════════════════ -->
+<footer id="footer" class="footer" data-section>
+
+  <div class="footer__manifesto">
+    <p>A magazine is not a feed. It is a room. We make rooms for the music we love, the art we argue with, the clothes we live in, and the lives we are still becoming.</p>
+    <div class="footer__pillars">
+      <div class="footer__pill"><div class="pn">01</div><h3>Music</h3><p>The pulse — what we play, who we listen to, the records we return to.</p></div>
+      <div class="footer__pill"><div class="pn">02</div><h3>Art</h3><p>The argument — paintings, sculpture, ceramics, and the studios behind them.</p></div>
+      <div class="footer__pill"><div class="pn">03</div><h3>Fashion</h3><p>The silhouette — designers, editorials, and the way we dress for our own lives.</p></div>
+      <div class="footer__pill"><div class="pn">04</div><h3>Lifestyle</h3><p>The practice — travel, food, books, and the slow furniture of meaning.</p></div>
+    </div>
+  </div>
+
+  <div class="footer__hr"></div>
+
+  <div class="footer__cols">
+    <div>
+      <div class="footer__collbl">The Magazine</div>
+      <div class="footer__wm">WOTKNOT</div>
+      <p class="footer__blurb">A celebration of the four pillars that shape culture and inspire everyday living: Music, Art, Fashion, Lifestyle.</p>
+    </div>
+    <div>
+      <div class="footer__collbl">Section</div>
+      <ul>
+        <li><a href="#featuring">Music</a></li>
+        <li><a href="#featuring">Art</a></li>
+        <li><a href="#featuring">Fashion</a></li>
+        <li><a href="#featuring">Lifestyle</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer__collbl">Pages</div>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms &amp; Conditions</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer__collbl">Follow</div>
+      <ul>
+        <li><a href="https://www.instagram.com/wotknotmag/" target="_blank" rel="noopener">Instagram ↗</a></li>
+        <li><a href="https://www.youtube.com/@wotknotmag" target="_blank" rel="noopener">YouTube ↗</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Spotify</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__bot">
+    <div>© WOTKNOT MAGAZINE</div>
+    <div class="c">Printed Quietly · Lagos / London / Houston</div>
+    <div class="r">Issue 07 · MMXXVI</div>
+  </div>
+
+  <div class="footer__big" aria-hidden="true">WOTKNOT</div>
+</footer>
+
+</main>
+
+<!-- ─── SCRIPTS ───────────────────────────────── -->
+<script>
+(()=>{
+'use strict';
+const RM  = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+const TCH = window.matchMedia('(hover:none),(pointer:coarse)').matches;
+const mob = ()=>window.innerWidth<=760;
+
+/* ── CURSOR ── */
+const cur  = document.querySelector('[data-cursor]');
+const ring = document.querySelector('[data-cursor-ring]');
+let cx=0,cy=0,tx=0,ty=0,rx=0,ry=0;
+if(!TCH){
+  window.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY});
+  window.addEventListener('mouseleave',()=>cur.style.opacity='0');
+  window.addEventListener('mouseenter',()=>cur.style.opacity='1');
+  document.querySelectorAll('[data-hover]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.classList.add('big');cur.setAttribute('data-label',el.getAttribute('data-hover')||'')});
+    el.addEventListener('mouseleave',()=>{cur.classList.remove('big');cur.setAttribute('data-label','')});
+  });
+  document.querySelectorAll('input').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.style.width=cur.style.height='3px');
+    el.addEventListener('mouseleave',()=>cur.style.width=cur.style.height='');
+  });
+  const lp=(a,b,n)=>a+(b-a)*n;
+  (function cl(){
+    cx=lp(cx,tx,.55);cy=lp(cy,ty,.55);
+    rx=lp(rx,tx,.18);ry=lp(ry,ty,.18);
+    cur.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+    ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(cl);
+  })();
+}
+
+/* ── LOADER ── */
+const loader = document.getElementById('js-loader');
+const numEl  = document.querySelector('[data-loader-num]');
+const barEl  = document.querySelector('[data-loader-bar]');
+const statEl = document.querySelector('[data-loader-status]');
+const stats  = ['Composing typography…','Inking plates…','Tuning Side A…','Pressing Issue 07…'];
+function runLoader(){
+  return new Promise(res=>{
+    if(RM){numEl.textContent='100';barEl.style.width='100%';loader.style.opacity='0';setTimeout(()=>{loader.style.display='none';res()},200);return}
+    let n=0,si=0;
+    (function t(){
+      n+=Math.max(1,Math.round((100-n)*.07)+Math.random()*3);
+      if(n>100)n=100;
+      numEl.textContent=String(Math.floor(n)).padStart(2,'0');
+      barEl.style.width=n+'%';
+      if(n%23<4&&si<stats.length-1)statEl.textContent=stats[++si];
+      if(n<100){setTimeout(t,55+Math.random()*55)}
+      else{
+        statEl.textContent='Welcome to Issue 07.';
+        setTimeout(()=>{
+          loader.style.transition='opacity .7s cubic-bezier(.77,0,.18,1),transform .8s cubic-bezier(.77,0,.18,1)';
+          loader.style.opacity='0';loader.style.transform='translateY(-2%)';
+          setTimeout(()=>{loader.style.display='none';res()},650);
+        },320);
+      }
+    })();
+  });
+}
+
+/* ── HERO SCROLL — WOTKNOT → logo morph ── */
+const wot   = document.getElementById('js-wot');
+const logo  = document.getElementById('js-logo');
+function onScroll(){
+  const hero = document.getElementById('hero');
+  const hh   = hero ? hero.offsetHeight : window.innerHeight;
+  const sy   = window.scrollY;
+  const p    = Math.min(sy/(hh*.55),1);
+  if(wot){
+    wot.style.transform=`scale(${Math.max(1-p*.9,.06)})`;
+    wot.style.opacity  =Math.max(0,1-p*1.5);
+  }
+  logo.classList.toggle('show',p>.48);
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+
+/* ── HAMBURGER / MENUS ── */
+const ham   = document.getElementById('js-ham');
+const mdest = document.getElementById('js-mdest');
+const mmob  = document.getElementById('js-mmob');
+let mopen=false;
+function openM(){
+  mopen=true;ham.classList.add('open');ham.setAttribute('aria-expanded','true');
+  if(mob()){mmob.classList.add('open');mmob.setAttribute('aria-hidden','false')}
+  else{mdest.classList.add('open');mdest.setAttribute('aria-hidden','false')}
+  document.body.style.overflow='hidden';
+}
+function closeM(){
+  mopen=false;ham.classList.remove('open');ham.setAttribute('aria-expanded','false');
+  mdest.classList.remove('open');mdest.setAttribute('aria-hidden','true');
+  mmob.classList.remove('open');mmob.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+ham.addEventListener('click',()=>mopen?closeM():openM());
+mdest.addEventListener('click',e=>{if(e.target===mdest)closeM()});
+document.querySelectorAll('[data-mclose]').forEach(a=>a.addEventListener('click',closeM));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mopen)closeM()});
+
+/* ── HUD ── */
+const secs   = document.querySelectorAll('[data-section]');
+const hbtns  = document.querySelectorAll('.hud__btn');
+const secIO  = new IntersectionObserver(entries=>{
+  let best=null,br=0;
+  entries.forEach(e=>{if(e.intersectionRatio>br){br=e.intersectionRatio;best=e.target}});
+  if(best&&br>.3)hbtns.forEach(b=>b.classList.toggle('active',b.dataset.jump===best.id));
+},{threshold:[.3,.5,.7]});
+secs.forEach(s=>secIO.observe(s));
+hbtns.forEach(b=>b.addEventListener('click',()=>{
+  const t=document.getElementById(b.dataset.jump);
+  if(t)t.scrollIntoView({behavior:RM?'auto':'smooth'});
+}));
+
+/* ── FEATURING STAGGER OBSERVER ── */
+// Left col items enter from right; right col items from left; images from below
+const faEls = document.querySelectorAll('.fa');
+faEls.forEach(el=>el._sd = parseInt(el.dataset.sd||0));
+
+const faIO = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(!entry.isIntersecting||entry.target._done)return;
+    entry.target._done=true;
+    const delay = entry.target._sd * 110;
+    if(RM){entry.target.style.opacity='1';entry.target.style.transform='none';return}
+    setTimeout(()=>entry.target.classList.add('in'), delay);
+    faIO.unobserve(entry.target);
+  });
+},{threshold:.15,rootMargin:'0px 0px -4% 0px'});
+faEls.forEach(el=>faIO.observe(el));
+
+/* ── SHOP ITEMS ── */
+document.querySelectorAll('.shop__item').forEach((el,i)=>{
+  el.style.opacity='0';el.style.transform='translateY(32px)';
+  const io=new IntersectionObserver(entries=>{
+    if(!entries[0].isIntersecting||el._done)return;
+    el._done=true;
+    if(RM){el.style.opacity='1';el.style.transform='none';return}
+    setTimeout(()=>{
+      el.style.transition=`opacity .7s cubic-bezier(.34,1.56,.64,1) ${i*.1}s, transform .7s cubic-bezier(.34,1.56,.64,1) ${i*.1}s`;
+      el.style.opacity='1';el.style.transform='none';
+    },i*80);
+    io.unobserve(el);
+  },{threshold:.2});
+  io.observe(el);
+});
+
+/* ── BOOT ── */
+runLoader().then(()=>onScroll());
+})();
+</script>
+</body>
+</html>
